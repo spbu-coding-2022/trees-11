@@ -75,4 +75,3 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return getNode(key)?.value
     }
 }
-
