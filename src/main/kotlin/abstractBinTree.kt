@@ -1,4 +1,5 @@
 import kotlin.math.abs
+
 abstract class BinTree<Key : Comparable<Key>, Value> {
     protected open class Node<Key : Comparable<Key>, Value>(
         val key: Key,
@@ -16,20 +17,23 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             return this.compareTo(other) == 0
         }
     }
+
     protected open var rootNode: Node<Key, Value>? = null
 
     constructor()
     constructor(key: Key, value: Value) {
         insert(key, value)
     }
+
     private fun sortInsert(array: Array<out Pair<Key, Value>>) {
         val serArray = array.sortedBy { it.first }.toTypedArray()
         var indices = serArray.indices.toList()
-        indices = indices.sortedBy{ abs(serArray.size/2 - it) }
+        indices = indices.sortedBy { abs(serArray.size / 2 - it) }
         for (i in indices) {
             insert(serArray[i].first, serArray[i].second)
         }
     }
+
     constructor(array: Array<out Pair<Key, Value>>) {
         sortInsert(array)
     }
@@ -38,8 +42,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     abstract fun remove(key: Key)
 
 
-
-    protected fun getParent(key: Key) : Node<Key, Value>? {
+    protected fun getParent(key: Key): Node<Key, Value>? {
         tailrec fun recFind(curNode: Node<Key, Value>?): Node<Key, Value>? {
             return if (curNode == null)
                 null

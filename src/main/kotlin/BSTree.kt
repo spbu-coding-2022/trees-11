@@ -1,7 +1,8 @@
-open class BSTree<Key : Comparable<Key>, Value>: BinTree<Key, Value> {
-    constructor(): super()
-    constructor(key: Key, value: Value): super(key, value)
-    constructor(vararg pairs: Pair<Key, Value>): super(pairs)
+open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
+    constructor() : super()
+    constructor(key: Key, value: Value) : super(key, value)
+    constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
+
     open override fun insert(key: Key, value: Value) {
         if (rootNode == null)
             rootNode = Node(key, value)
@@ -23,6 +24,7 @@ open class BSTree<Key : Comparable<Key>, Value>: BinTree<Key, Value> {
     open override fun remove(key: Key) {
         removeNode(getNode(key))
     }
+
     protected open fun removeNode(node: Node<Key, Value>?) {
         if ((node!!.left == null) && (node.right == null)) {
             if (node.parent == null)
@@ -31,15 +33,15 @@ open class BSTree<Key : Comparable<Key>, Value>: BinTree<Key, Value> {
                 (node.parent)!!.left == null
             else
                 (node.parent)!!.right == null
-        }
-        else if (node.left == null)
+        } else if (node.left == null)
             transplant(node, (node.right)!!)
         else if (node.right == null)
             transplant(node, (node.left)!!)
-        else{
+        else {
             TODO("Юля когда-нибудь доделает")
         }
     }
+
     protected open fun transplant(node1: Node<Key, Value>, node2: Node<Key, Value>) {
         if (node1.parent == null)
             rootNode = node2

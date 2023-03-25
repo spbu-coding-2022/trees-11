@@ -2,7 +2,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
     protected class RBNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
-        parent: RBNode<Key, Value>?= null,
+        parent: RBNode<Key, Value>? = null,
         left: RBNode<Key, Value>? = null,
         right: RBNode<Key, Value>? = null,
         var Black: Boolean = false
