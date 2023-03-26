@@ -22,23 +22,34 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     }
 
     open override fun remove(key: Key) {
-        removeNode(getNode(key))
+        val node = getNode(key)
+        if (node != null)
+            removeNode(node)
     }
-
-    protected open fun removeNode(node: Node<Key, Value>?) {
-        if ((node!!.left == null) && (node.right == null)) {
+    protected open fun removeNode(node: Node<Key, Value>) {
+        if ((node.left == null) && (node.right == null)) {
             if (node.parent == null)
-                rootNode == null
-            else if (node == (node.parent)!!.left)
-                (node.parent)!!.left == null
+                rootNode = null
+            else if (node == node.parent!!.left)
+                node.parent!!.left = null
             else
-                (node.parent)!!.right == null
-        } else if (node.left == null)
-            transplant(node, (node.right)!!)
+                node.parent!!.right = null
+        }
+        else if (node.left == null)
+            transplant(node, node.right!!)
         else if (node.right == null)
-            transplant(node, (node.left)!!)
-        else {
-            TODO("Юля когда-нибудь доделает")
+            transplant(node, node.left!!)
+        else{
+            val nextNode = nextElement(node)
+            if (nextNode != null) {
+                if (nextNode.right != null)
+                    transplant(nextNode, nextNode.right!!)
+                nextNode.right = node.right
+                nextNode.left = node.left
+                nextNode.right!!.parent = nextNode
+                nextNode.left!!.parent = nextNode
+                transplant(node, nextNode)
+            }
         }
     }
 
@@ -51,5 +62,27 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
             (node1.parent)!!.right = node2
         }
         node2.parent = node1.parent
+    }
+
+    protected open fun nextElement(node: Node<Key, Value>): Node<Key, Value>?{
+        if (node.right == null)
+            return null
+        return minElement(node.right!!)
+    }
+
+    protected fun minElement(node: Node<Key, Value>): Node<Key, Value> {
+        var node1: Node<Key, Value> = node
+        while (node1.left != null) {
+            node1 = node1.left!!
+        }
+        return node1
+    }
+
+    protected fun maxElement(node: Node<Key, Value>): Node<Key, Value> {
+        var node1: Node<Key, Value> = node
+        while (node1.right != null) {
+            node1 = node1.right!!
+        }
+        return node1
     }
 }
