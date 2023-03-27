@@ -41,6 +41,18 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     abstract fun insert(key: Key, value: Value)
     abstract fun remove(key: Key)
 
+    protected fun breadthFirstSearch(function: (node: Node<Key, Value>?) -> Unit) {
+        var list = mutableListOf(rootNode)
+        while (list.isNotEmpty()) {
+            val node = list.last()
+            list.removeLast()
+            function(node)
+            if (node != null) {
+                list.add(0, node.left)
+                list.add(0, node.right)
+            }
+        }
+    }
 
     protected fun getParent(key: Key): Node<Key, Value>? {
         tailrec fun recFind(curNode: Node<Key, Value>?): Node<Key, Value>? {
