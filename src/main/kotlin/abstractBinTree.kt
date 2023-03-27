@@ -18,6 +18,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
     }
 
+
     protected open var rootNode: Node<Key, Value>? = null
 
     constructor()
@@ -41,18 +42,6 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     abstract fun insert(key: Key, value: Value)
     abstract fun remove(key: Key)
 
-    protected fun breadthFirstSearch(function: (node: Node<Key, Value>?) -> Unit) {
-        var list = mutableListOf(rootNode)
-        while (list.isNotEmpty()) {
-            val node = list.last()
-            list.removeLast()
-            function(node)
-            if (node != null) {
-                list.add(0, node.left)
-                list.add(0, node.right)
-            }
-        }
-    }
 
     protected fun getParent(key: Key): Node<Key, Value>? {
         tailrec fun recFind(curNode: Node<Key, Value>?): Node<Key, Value>? {
@@ -88,5 +77,53 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
 
     open fun get(key: Key): Value? {
         return getNode(key)?.value
+    }
+
+    protected fun breadthFirstSearch(function: (Node<Key, Value>?) -> Unit, addNullNodes: Boolean) {
+        val queue = mutableListOf(rootNode)
+
+        fun notNullInQueue(): Boolean {
+            for (i in queue)
+                if (i != null)
+                    return true
+            return false
+        }
+
+        while (queue.isNotEmpty()) {
+            val node = queue.last()
+            queue.removeLast()
+            function(node)
+            if (node != null) {
+                queue.add(0, node.left)
+                queue.add(0, node.right)
+            } else if (addNullNodes) {
+                queue.add(0, null)
+                queue.add(0, null)
+            }
+            if (!notNullInQueue())
+                return
+        }
+    }
+
+    open inner class Debug {
+        fun treeKeysInString(): String {
+            var sizeOfLevel = 1
+            var elemInTheLevel = 0
+            var string = ""
+
+            fun function(node: Node<Key, Value>?) {
+                string += node?.key ?: "-"
+                string += " "
+                elemInTheLevel += 1
+                if (elemInTheLevel == sizeOfLevel) {
+                    sizeOfLevel *= 2
+                    elemInTheLevel = 0
+                    string += "\n"
+                }
+            }
+
+            breadthFirstSearch(::function, true)
+            return string
+        }
     }
 }
