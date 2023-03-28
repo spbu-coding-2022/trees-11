@@ -52,6 +52,8 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
                     curNode
                 else
                     recFind(curNode.left)
+            } else if (curNode.equalKey(key)) {
+                return curNode.parent
             } else {
                 if (curNode.right?.equalKey(key) != false)
                     curNode
@@ -59,7 +61,6 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
                     recFind(curNode.right)
             }
         }
-
         return recFind(rootNode)
     }
 

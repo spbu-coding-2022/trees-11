@@ -18,6 +18,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
                         parent.left = Node(key, value)
                     else (parent.left)?.value = value ?: error("unexpected null")
             }
+            else rootNode?.value = value ?: error("unexpected null")
         }
     }
 
