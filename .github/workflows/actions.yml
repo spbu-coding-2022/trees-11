@@ -17,7 +17,7 @@ jobs:
           java-version: 18
 
       - name: Cache Gradle packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
