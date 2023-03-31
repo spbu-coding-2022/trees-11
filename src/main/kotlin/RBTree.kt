@@ -38,14 +38,6 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         TODO("Not yet implemented")
     }
 
-    override fun leftRotation() {
-        TODO("Not yet implemented")
-    }
-
-    override fun rightRotation() {
-        TODO("Not yet implemented")
-    }
-
     override fun remove(key: Key) {
         TODO("Not yet implemented")
     }
