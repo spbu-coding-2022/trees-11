@@ -3,7 +3,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor(key: Key, value: Value) : super(key, value)
     constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
-    open override fun insert(key: Key, value: Value) {
+    override fun insert(key: Key, value: Value) {
         if (rootNode == null)
             rootNode = Node(key, value)
         else {
@@ -21,68 +21,44 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         }
     }
 
-    open override fun remove(key: Key) {
-        val node = getNode(key)
-        if (node != null)
-            removeNode(node)
-    }
-    protected open fun removeNode(node: Node<Key, Value>) {
-        if ((node.left == null) && (node.right == null)) {
-            if (node.parent == null)
+    override fun remove(key: Key) {
+        val node: Node<Key, Value>? = getNode(key)
+        if (node == null)
+            return
+        else if ((node.left == null) && (node.right == null)) {
+            val parent: Node<Key, Value>? = node.parent
+            if (parent == null)
                 rootNode = null
-            else if (node == node.parent!!.left)
-                node.parent!!.left = null
+            else if (node == parent.left)
+                parent.left = null
             else
-                node.parent!!.right = null
-        }
-        else if (node.left == null)
-            transplant(node, node.right!!)
+                parent.right = null
+        } else if (node.left == null)
+            transplant(node, node.right ?: error("unexpected null"))
         else if (node.right == null)
-            transplant(node, node.left!!)
-        else{
+            transplant(node, node.left ?: error("unexpected null"))
+        else {
             val nextNode = nextElement(node)
             if (nextNode != null) {
-                if (nextNode.right != null)
-                    transplant(nextNode, nextNode.right!!)
+                nextNode.right?.let {transplant(nextNode, it)}
                 nextNode.right = node.right
                 nextNode.left = node.left
-                nextNode.right!!.parent = nextNode
-                nextNode.left!!.parent = nextNode
+                nextNode.right?.parent = nextNode
+                nextNode.left?.parent = nextNode
                 transplant(node, nextNode)
             }
         }
     }
 
-    protected open fun transplant(node1: Node<Key, Value>, node2: Node<Key, Value>) {
-        if (node1.parent == null)
-            rootNode = node2
-        else if (node1 == (node1.parent)!!.left) {
-            (node1.parent)!!.left = node2
+    protected open fun transplant(oldNode: Node<Key, Value>, newNode: Node<Key, Value>) {
+        val parent: Node<Key, Value>? = oldNode.parent
+        if (parent == null)
+            rootNode = newNode
+        else if (oldNode == parent.left) {
+            parent.left = newNode
         } else {
-            (node1.parent)!!.right = node2
+            parent.right = newNode
         }
-        node2.parent = node1.parent
-    }
-
-    protected open fun nextElement(node: Node<Key, Value>): Node<Key, Value>?{
-        if (node.right == null)
-            return null
-        return minElement(node.right!!)
-    }
-
-    protected fun minElement(node: Node<Key, Value>): Node<Key, Value> {
-        var node1: Node<Key, Value> = node
-        while (node1.left != null) {
-            node1 = node1.left!!
-        }
-        return node1
-    }
-
-    protected fun maxElement(node: Node<Key, Value>): Node<Key, Value> {
-        var node1: Node<Key, Value> = node
-        while (node1.right != null) {
-            node1 = node1.right!!
-        }
-        return node1
+        newNode.parent = parent
     }
 }
