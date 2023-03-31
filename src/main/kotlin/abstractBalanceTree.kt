@@ -1,6 +1,4 @@
 abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value>() {
-    protected abstract fun rebalancing()
-
     enum class RotationType { Left, Right }
 
     protected fun rotation(key: Key, type: RotationType) {

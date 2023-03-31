@@ -39,8 +39,62 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     }
 
     abstract fun insert(key: Key, value: Value)
+
+    protected fun insertNode(key: Key, value: Value): Node<Key, Value>? {
+        if (rootNode == null)
+            rootNode = Node(key, value)
+        else {
+            val parent = getParent(key)
+            if (parent != null) {
+                if (parent < key)
+                    if (parent.right == null) {
+                        parent.right = Node(key, value)
+                        Node(key, value).parent = parent
+                    }
+                    else parent.right?.value = value ?: error("unexpected null")
+                else
+                    if (parent.left == null) {
+                        parent.left = Node(key, value)
+                        Node(key, value).parent = parent
+                    }
+                    else (parent.left)?.value = value ?: error("unexpected null")
+            }
+            return parent
+        }
+        return null
+    }
+
     abstract fun remove(key: Key)
 
+    protected fun removeNode(key: Key): Node<Key, Value>? {
+        val node: Node<Key, Value>? = getNode(key)
+        if (node == null)
+            return null
+        else if ((node.left == null) && (node.right == null)) {
+            val parent: Node<Key, Value>? = node.parent
+            if (parent == null)
+                rootNode = null
+            else if (node == parent.left)
+                parent.left = null
+            else
+                parent.right = null
+        } else if (node.left == null)
+            transplant(node, node.right ?: error("unexpected null"))
+        else if (node.right == null)
+            transplant(node, node.left ?: error("unexpected null"))
+        else {
+            val nextNode = nextElement(node)
+            if (nextNode != null) {
+                nextNode.right?.let { transplant(nextNode, it) }
+                nextNode.right = node.right
+                nextNode.left = node.left
+                nextNode.right?.parent = nextNode
+                nextNode.left?.parent = nextNode
+                transplant(node, nextNode)
+            }
+        }
+        return node.parent
+    }
 
     protected fun getParent(key: Key): Node<Key, Value>? {
         tailrec fun recFind(curNode: Node<Key, Value>?): Node<Key, Value>? {

@@ -26,16 +26,4 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
     override fun remove(key: Key) {
         TODO("Not yet implemented")
     }
-
-    override fun leftRotation() {
-        TODO("Not yet implemented")
-    }
-
-    override fun rightRotation() {
-        TODO("Not yet implemented")
-    }
-
-    override fun rebalancing() {
-        TODO("Not yet implemented")
-    }
 }
