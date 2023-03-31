@@ -4,22 +4,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
     open override fun insert(key: Key, value: Value) {
-        if (rootNode == null)
-            rootNode = Node(key, value)
-        else {
-            val parent = getParent(key)
-            if (parent != null) {
-                if (parent < key)
-                    if (parent.right == null)
-                        parent.right = Node(key, value)
-                    else parent.right?.value = value ?: error("unexpected null")
-                else
-                    if (parent.left == null)
-                        parent.left = Node(key, value)
-                    else (parent.left)?.value = value ?: error("unexpected null")
-            }
-            else rootNode?.value = value ?: error("unexpected null")
-        }
+        insertService(BinNode(key, value))
     }
 
     open override fun remove(key: Key) {
@@ -27,7 +12,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         if (node != null)
             removeNode(node)
     }
-    protected open fun removeNode(node: Node<Key, Value>) {
+    protected open fun removeNode(node: BinNode<Key, Value>) {
         if ((node.left == null) && (node.right == null)) {
             if (node.parent == null)
                 rootNode = null
@@ -54,7 +39,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         }
     }
 
-    protected open fun transplant(node1: Node<Key, Value>, node2: Node<Key, Value>) {
+    protected open fun transplant(node1: BinNode<Key, Value>, node2: BinNode<Key, Value>) {
         if (node1.parent == null)
             rootNode = node2
         else if (node1 == (node1.parent)!!.left) {
@@ -65,22 +50,22 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         node2.parent = node1.parent
     }
 
-    protected open fun nextElement(node: Node<Key, Value>): Node<Key, Value>?{
+    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>?{
         if (node.right == null)
             return null
         return minElement(node.right!!)
     }
 
-    protected fun minElement(node: Node<Key, Value>): Node<Key, Value> {
-        var node1: Node<Key, Value> = node
+    protected fun minElement(node: BinNode<Key, Value>): BinNode<Key, Value> {
+        var node1: BinNode<Key, Value> = node
         while (node1.left != null) {
             node1 = node1.left!!
         }
         return node1
     }
 
-    protected fun maxElement(node: Node<Key, Value>): Node<Key, Value> {
-        var node1: Node<Key, Value> = node
+    protected fun maxElement(node: BinNode<Key, Value>): BinNode<Key, Value> {
+        var node1: BinNode<Key, Value> = node
         while (node1.right != null) {
             node1 = node1.right!!
         }
