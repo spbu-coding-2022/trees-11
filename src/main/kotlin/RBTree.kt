@@ -6,7 +6,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         left: RBNode<Key, Value>? = null,
         right: RBNode<Key, Value>? = null,
         var Black: Boolean = false
-    ) : Node<Key, Value>(key, value, parent, left, right) {
+    ) : BinNode<Key, Value>(key, value, parent, left, right) {
         fun swapColor() {
             Black = !Black
         }
@@ -15,6 +15,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
     override fun insert(key: Key, value: Value) {
         if (rootNode == null)
             rootNode = RBNode(key, value)
+        TODO("add balancing")
     }
 
     override fun rebalancing() {
