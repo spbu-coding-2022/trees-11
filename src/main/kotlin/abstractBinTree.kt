@@ -98,4 +98,16 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
         return maxNode
     }
+
+    protected open fun transplant(oldNode: Node<Key, Value>, newNode: Node<Key, Value>) {
+        val parent: Node<Key, Value>? = oldNode.parent
+        if (parent == null)
+            rootNode = newNode
+        else if (oldNode == parent.left) {
+            parent.left = newNode
+        } else {
+            parent.right = newNode
+        }
+        newNode.parent = parent
+    }
 }

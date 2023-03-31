@@ -40,7 +40,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         else {
             val nextNode = nextElement(node)
             if (nextNode != null) {
-                nextNode.right?.let {transplant(nextNode, it)}
+                nextNode.right?.let { transplant(nextNode, it) }
                 nextNode.right = node.right
                 nextNode.left = node.left
                 nextNode.right?.parent = nextNode
@@ -48,17 +48,5 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
                 transplant(node, nextNode)
             }
         }
-    }
-
-    protected open fun transplant(oldNode: Node<Key, Value>, newNode: Node<Key, Value>) {
-        val parent: Node<Key, Value>? = oldNode.parent
-        if (parent == null)
-            rootNode = newNode
-        else if (oldNode == parent.left) {
-            parent.left = newNode
-        } else {
-            parent.right = newNode
-        }
-        newNode.parent = parent
     }
 }
