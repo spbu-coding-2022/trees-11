@@ -12,9 +12,26 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         }
     }
 
+
     override fun insert(key: Key, value: Value) {
         if (rootNode == null)
             rootNode = RBNode(key, value)
+    }
+
+    protected fun getGrandparent(key: Key): RBNode<Key, Value>? {
+        val parent = getParent(key) as RBNode<Key, Value>?
+        parent?.let { it -> it.parent?.let { return it as RBNode<Key, Value>} }
+        return null
+    }
+
+    protected fun getUncle(key: Key): RBNode<Key, Value>? {
+        val grandparent = getGrandparent(key)
+        val parent = getParent(key) as RBNode<Key, Value>
+        grandparent?.let{
+            if (it.left == parent) return it.right as RBNode<Key, Value>
+            else if (it.right == parent) return it.left as RBNode<Key, Value>
+        }
+        return null
     }
 
     override fun rebalancing() {
