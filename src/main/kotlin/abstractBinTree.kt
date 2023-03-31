@@ -77,4 +77,25 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     open fun get(key: Key): Value? {
         return getNode(key)?.value
     }
+
+    protected open fun nextElement(node: Node<Key, Value>): Node<Key, Value>? {
+        val nodeRight: Node<Key, Value> = node.right ?: return null
+        return minElement(nodeRight.key)
+    }
+
+    protected fun minElement(key: Key): Node<Key, Value>? {
+        var minNode: Node<Key, Value>? = getNode(key) ?: return null
+        while (minNode?.left != null) {
+            minNode = minNode.left ?: error("unexpected null")
+        }
+        return minNode
+    }
+
+    protected fun maxElement(key: Key): Node<Key, Value>? {
+        var maxNode: Node<Key, Value>? = getNode(key) ?: return null
+        while (maxNode?.right != null) {
+            maxNode = maxNode.right ?: error("unexpected null")
+        }
+        return maxNode
+    }
 }
