@@ -41,7 +41,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
 
     abstract fun insert(key: Key, value: Value)
 
-    protected fun insertNode(key: Key, value: Value): Node<Key, Value>? {
+    protected fun insertNode(key: Key, value: Value): Node<Key, Value> {
         if (rootNode == null)
             rootNode = Node(key, value)
         else {
@@ -60,9 +60,8 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
                     }
                     else (parent.left)?.value = value ?: error("unexpected null")
             }
-            return parent
         }
-        return null
+        return Node(key, value)
     }
 
     abstract fun remove(key: Key)
