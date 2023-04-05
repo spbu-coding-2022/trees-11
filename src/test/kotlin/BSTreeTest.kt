@@ -1,11 +1,7 @@
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Assumptions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
-import kotlin.test.expect
 import org.junit.jupiter.api.assertAll
 
 class BSTreeTest {
@@ -133,9 +129,13 @@ class BSTreeTest {
 
         @Test
         fun `multiple removal`() {
-            val tree = generateTreeWithInsert(10, 7, 15, 13, 17, 16, 18, 14, 12)
+            val tree = generateTreeWithInsert(10, 7, 15, 13, 17, 16, 18, 14, 12, 6, 9)
             tree.remove(15)
-            assertEquals("10 \n7 16 \n- - 13 17 \n- - - - 12 14 - 18 \n", tree.Debug().treeKeysInString())
+            assertEquals("10 \n7 16 \n6 9 13 17 \n- - - - 12 14 - 18 \n", tree.Debug().treeKeysInString())
+            tree.remove(10)
+            assertEquals("12 \n7 16 \n6 9 13 17 \n- - - - - 14 - 18 \n", tree.Debug().treeKeysInString())
+            tree.remove(17)
+            assertEquals("12 \n7 16 \n6 9 13 18 \n- - - - - 14 ", tree.Debug().treeKeysInString())
         }
     }
 }
