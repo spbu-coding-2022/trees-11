@@ -1,4 +1,3 @@
-import java.lang.reflect.Constructor
 import kotlin.math.abs
 
 abstract class BinTree<Key : Comparable<Key>, Value> {
@@ -98,8 +97,9 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             null
         else if (parent.left?.equalKey(key) == true)
             parent.left
-        else
+        else if (parent.right?.equalKey(key) == true)
             parent.right
+        else null
     }
 
     open fun get(key: Key): Value? {
