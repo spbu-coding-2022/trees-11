@@ -133,7 +133,7 @@ class BSTreeTest {
 
         @Test
         fun `multiple removal`() {
-            val tree = generateTreeWithInsert(10, 7, 15, 13, 17, 16, 18, 14)
+            val tree = generateTreeWithInsert(10, 7, 15, 13, 17, 16, 18, 14, 12)
             tree.remove(15)
             assertEquals("10 \n7 16 \n- - 13 17 \n- - - - 12 14 - 18 \n", tree.Debug().treeKeysInString())
         }
