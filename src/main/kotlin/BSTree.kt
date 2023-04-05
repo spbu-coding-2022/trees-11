@@ -12,6 +12,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         if (node != null)
             removeNode(node)
     }
+
     protected open fun removeNode(node: BinNode<Key, Value>) {
         if ((node.left == null) && (node.right == null)) {
             if (node.parent == null)
@@ -20,12 +21,11 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
                 node.parent?.left = null
             else
                 node.parent?.right = null
-        }
-        else if (node.left == null)
+        } else if (node.left == null)
             transplant(node, node.right!!)
         else if (node.right == null)
             transplant(node, node.left!!)
-        else{
+        else {
             val nextNode = nextElement(node)
             if (nextNode != null) {
                 if (nextNode.right != null) {
@@ -56,7 +56,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         node2.parent = node1.parent
     }
 
-    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>?{
+    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>? {
         if (node.right == null)
             return null
         return minElement(node.right!!)
