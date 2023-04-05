@@ -106,8 +106,9 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             null
         else if (parent.left?.equalKey(key) == true)
             parent.left
-        else
+        else if (parent.right?.equalKey(key) == true)
             parent.right
+        else null
     }
 
     open fun get(key: Key): Value? {
