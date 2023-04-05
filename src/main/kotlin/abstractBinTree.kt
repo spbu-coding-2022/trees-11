@@ -1,4 +1,3 @@
-import java.lang.reflect.Constructor
 import kotlin.math.abs
 
 abstract class BinTree<Key : Comparable<Key>, Value> {
@@ -26,6 +25,9 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     constructor(key: Key, value: Value) {
         insert(key, value)
     }
+    constructor(array: Array<out Pair<Key, Value>>) {
+        sortInsert(array)
+    }
 
     private fun sortInsert(array: Array<out Pair<Key, Value>>) {
         val serArray = array.sortedBy { it.first }.toTypedArray()
@@ -36,12 +38,18 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
     }
 
-    constructor(array: Array<out Pair<Key, Value>>) {
+    abstract fun insert(key: Key, value: Value)
+
+    fun insert(vararg array: Pair<Key, Value>) {
         sortInsert(array)
     }
 
-    abstract fun insert(key: Key, value: Value)
     abstract fun remove(key: Key)
+
+    fun remove(vararg array: Key) {
+        for (i in array)
+            remove(i)
+    }
 
     //return the inserted node if the node with the same key wasn't in the tree and null in otherwise
     //doesn't balance the tree
@@ -104,6 +112,10 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
 
     open fun get(key: Key): Value? {
         return getNode(key)?.value
+    }
+
+    fun get(vararg keys: Key): List<Value?> {
+        return List(keys.size, {get(keys[it])})
     }
 
     protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
