@@ -1,12 +1,12 @@
 import kotlin.math.abs
 
 abstract class BinTree<Key : Comparable<Key>, Value> {
-    protected open class Node<Key : Comparable<Key>, Value>(
+    protected open class BinNode<Key : Comparable<Key>, Value>(
         val key: Key,
         var value: Value,
-        var parent: Node<Key, Value>? = null,
-        var left: Node<Key, Value>? = null,
-        var right: Node<Key, Value>? = null
+        var parent: BinNode<Key, Value>? = null,
+        var left: BinNode<Key, Value>? = null,
+        var right: BinNode<Key, Value>? = null
 
     ) : Comparable<Key> {
         override fun compareTo(other: Key): Int {
@@ -19,11 +19,14 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     }
 
 
-    protected open var rootNode: Node<Key, Value>? = null
+    protected open var rootNode: BinNode<Key, Value>? = null
 
     constructor()
     constructor(key: Key, value: Value) {
         insert(key, value)
+    }
+    constructor(array: Array<out Pair<Key, Value>>) {
+        sortInsert(array)
     }
 
     private fun sortInsert(array: Array<out Pair<Key, Value>>) {
@@ -35,69 +38,47 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
     }
 
-    constructor(array: Array<out Pair<Key, Value>>) {
-        sortInsert(array)
-    }
-
     abstract fun insert(key: Key, value: Value)
 
-    protected fun insertNode(key: Key, value: Value): Node<Key, Value> {
-        if (rootNode == null)
-            rootNode = Node(key, value)
-        else {
-            val parent = getParent(key)
-            if (parent != null) {
-                if (parent < key)
-                    if (parent.right == null) {
-                        parent.right = Node(key, value)
-                        Node(key, value).parent = parent
-                    }
-                    else parent.right?.value = value ?: error("unexpected null")
-                else
-                    if (parent.left == null) {
-                        parent.left = Node(key, value)
-                        Node(key, value).parent = parent
-                    }
-                    else (parent.left)?.value = value ?: error("unexpected null")
-            }
-        }
-        return Node(key, value)
+    fun insert(vararg array: Pair<Key, Value>) {
+        sortInsert(array)
     }
 
     abstract fun remove(key: Key)
 
-    protected fun removeNode(key: Key): Node<Key, Value>? {
-        val node: Node<Key, Value>? = getNode(key)
-        if (node == null)
-            return null
-        else if ((node.left == null) && (node.right == null)) {
-            val parent: Node<Key, Value>? = node.parent
-            if (parent == null)
-                rootNode = null
-            else if (node == parent.left)
-                parent.left = null
-            else
-                parent.right = null
-        } else if (node.left == null)
-            transplant(node, node.right ?: error("unexpected null"))
-        else if (node.right == null)
-            transplant(node, node.left ?: error("unexpected null"))
-        else {
-            val nextNode = nextElement(node)
-            if (nextNode != null) {
-                nextNode.right?.let { transplant(nextNode, it) }
-                nextNode.right = node.right
-                nextNode.left = node.left
-                nextNode.right?.parent = nextNode
-                nextNode.left?.parent = nextNode
-                transplant(node, nextNode)
-            }
-        }
-        return node.parent
+    fun remove(vararg array: Key) {
+        for (i in array)
+            remove(i)
     }
 
-    protected fun getParent(key: Key): Node<Key, Value>? {
-        tailrec fun recFind(curNode: Node<Key, Value>?): Node<Key, Value>? {
+    //return the inserted node if the node with the same key wasn't in the tree and null in otherwise
+    //doesn't balance the tree
+    protected fun insertService(node: BinNode<Key, Value>): BinNode<Key, Value>? {
+        if (rootNode == null) {
+            rootNode = node
+            return node
+        } else {
+            val parent = getParent(node.key)
+            if (parent != null) {
+                if (parent < node.key)
+                    if (parent.right == null) {
+                        node.parent = parent
+                        parent.right = node
+                        return node
+                    } else parent.right?.value = node.value ?: error("unexpected null")
+                else
+                    if (parent.left == null) {
+                        node.parent = parent
+                        parent.left = node
+                        return node
+                    } else (parent.left)?.value = node.value ?: error("unexpected null")
+            } else rootNode?.value = node.value ?: error("unexpected null")
+        }
+        return null
+    }
+
+    protected fun getParent(key: Key): BinNode<Key, Value>? {
+        tailrec fun recFind(curNode: BinNode<Key, Value>?): BinNode<Key, Value>? {
             return if (curNode == null)
                 null
             else if (curNode > key) {
@@ -117,7 +98,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return recFind(rootNode)
     }
 
-    protected fun getNode(key: Key): Node<Key, Value>? {
+    protected fun getNode(key: Key): BinNode<Key, Value>? {
         if (rootNode?.equalKey(key) == true)
             return rootNode
         val parent = getParent(key)
@@ -125,37 +106,42 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             null
         else if (parent.left?.equalKey(key) == true)
             parent.left
-        else
+        else if (parent.right?.equalKey(key) == true)
             parent.right
+        else null
     }
 
     open fun get(key: Key): Value? {
         return getNode(key)?.value
     }
 
-    protected open fun nextElement(node: Node<Key, Value>): Node<Key, Value>? {
-        val nodeRight: Node<Key, Value> = node.right ?: return null
+    fun get(vararg keys: Key): List<Value?> {
+        return List(keys.size, {get(keys[it])})
+    }
+
+    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>? {
+        val nodeRight: BinNode<Key, Value> = node.right ?: return null
         return minElement(nodeRight.key)
     }
 
-    protected fun minElement(key: Key): Node<Key, Value>? {
-        var minNode: Node<Key, Value>? = getNode(key) ?: return null
+    protected fun minElement(key: Key): BinNode<Key, Value>? {
+        var minNode: BinNode<Key, Value>? = getNode(key) ?: return null
         while (minNode?.left != null) {
             minNode = minNode.left ?: error("unexpected null")
         }
         return minNode
     }
 
-    protected fun maxElement(key: Key): Node<Key, Value>? {
-        var maxNode: Node<Key, Value>? = getNode(key) ?: return null
+    protected fun maxElement(key: Key): BinNode<Key, Value>? {
+        var maxNode: BinNode<Key, Value>? = getNode(key) ?: return null
         while (maxNode?.right != null) {
             maxNode = maxNode.right ?: error("unexpected null")
         }
         return maxNode
     }
 
-    protected open fun transplant(oldNode: Node<Key, Value>, newNode: Node<Key, Value>) {
-        val parent: Node<Key, Value>? = oldNode.parent
+    protected open fun transplant(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>) {
+        val parent: BinNode<Key, Value>? = oldNode.parent
         if (parent == null)
             rootNode = newNode
         else if (oldNode == parent.left) {
@@ -166,7 +152,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         newNode.parent = parent
     }
 
-    protected fun breadthFirstSearch(function: (Node<Key, Value>?) -> Unit, addNullNodes: Boolean) {
+    protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
         val queue = mutableListOf(rootNode)
 
         fun notNullInQueue(): Boolean {
@@ -198,7 +184,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             var elemInTheLevel = 0
             var string = ""
 
-            fun function(node: Node<Key, Value>?) {
+            fun function(node: BinNode<Key, Value>?) {
                 string += node?.key ?: "-"
                 string += " "
                 elemInTheLevel += 1

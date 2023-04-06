@@ -6,21 +6,16 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         left: AVLNode<Key, Value>? = null,
         right: AVLNode<Key, Value>? = null,
         var height: UByte = 0U
-    ) : Node<Key, Value>(key, value, parent, left, right)
+    ) : BinNode<Key, Value>(key, value, parent, left, right)
 
     override fun insert(key: Key, value: Value) {
         if (rootNode != null) {
             if ((rootNode as AVLNode).height != 255.toUByte()) {
-                val parent = getParent(key)
-                if (parent != null) {
-                    if (parent < key)
-                        parent.right = AVLNode(key, value)
-                    else
-                        parent.left = AVLNode(key, value)
-                }
+                insertService(AVLNode(key, value))
             }
         } else
             rootNode = AVLNode(key, value)
+        TODO("add balancing")
     }
 
     override fun remove(key: Key) {

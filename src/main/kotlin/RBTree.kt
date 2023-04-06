@@ -6,16 +6,16 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         left: RBNode<Key, Value>? = null,
         right: RBNode<Key, Value>? = null,
         var Black: Boolean = false
-    ) : Node<Key, Value>(key, value, parent, left, right) {
+    ) : BinNode<Key, Value>(key, value, parent, left, right) {
         fun swapColor() {
             Black = !Black
         }
     }
 
-
     override fun insert(key: Key, value: Value) {
-        val node = insertNode(key, value) as RBNode
+        val node = insertService(RBNode(key, value)) as RBNode<Key, Value>
         rebalancing(node)
+        TODO("add balancing")
     }
 
     override fun remove(key: Key) {

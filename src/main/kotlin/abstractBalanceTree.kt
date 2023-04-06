@@ -1,9 +1,9 @@
 abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value>() {
     enum class RotationType { Left, Right }
 
-    protected fun rotation(parentKey: Key, type: RotationType): Node<Key, Value>? {
+    protected fun rotation(parentKey: Key, type: RotationType): BinNode<Key, Value>? {
         //giving the parentNode key
-        val parent: Node<Key, Value>? = getNode(parentKey)
+        val parent: BinNode<Key, Value>? = getNode(parentKey)
         parent?.let {
             val node = if (type.name == "Left")
                 it.right ?: error("rotation is not possible")
