@@ -12,28 +12,34 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         if (node != null)
             removeNode(node)
     }
+
     protected open fun removeNode(node: BinNode<Key, Value>) {
         if ((node.left == null) && (node.right == null)) {
             if (node.parent == null)
                 rootNode = null
-            else if (node == node.parent!!.left)
-                node.parent!!.left = null
+            else if (node == node.parent?.left)
+                node.parent?.left = null
             else
-                node.parent!!.right = null
-        }
-        else if (node.left == null)
+                node.parent?.right = null
+        } else if (node.left == null)
             transplant(node, node.right!!)
         else if (node.right == null)
             transplant(node, node.left!!)
-        else{
+        else {
             val nextNode = nextElement(node)
             if (nextNode != null) {
-                if (nextNode.right != null)
+                if (nextNode.right != null) {
                     transplant(nextNode, nextNode.right!!)
+                }
+                if (nextNode == (nextNode.parent)!!.left) {
+                    (nextNode.parent)!!.left = null
+                } else {
+                    (nextNode.parent)!!.right = null
+                }
                 nextNode.right = node.right
                 nextNode.left = node.left
-                nextNode.right!!.parent = nextNode
-                nextNode.left!!.parent = nextNode
+                nextNode.right?.parent = nextNode
+                nextNode.left?.parent = nextNode
                 transplant(node, nextNode)
             }
         }
@@ -50,7 +56,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
         node2.parent = node1.parent
     }
 
-    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>?{
+    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>? {
         if (node.right == null)
             return null
         return minElement(node.right!!)
