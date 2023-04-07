@@ -77,6 +77,37 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return null
     }
 
+    protected fun removeNode(key: Key): BinNode<Key, Value>? {
+        val node: BinNode<Key, Value> = getNode(key) ?: return null
+        if ((node.left == null) && (node.right == null)) {
+            val parent: BinNode<Key, Value>? = node.parent
+            if (parent == null)
+                rootNode = null
+            else if (node == parent.left)
+                parent.left = null
+            else
+                parent.right = null
+            return parent
+        } else if (node.left == null)
+            replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
+        else if (node.right == null)
+            replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
+        else {
+            val nextNode = nextElement(node)
+            if (nextNode != null) {
+                val parent = nextNode.parent
+                nextNode.right?.let { replaceNodeParent(nextNode, it) }
+                nextNode.right = node.right
+                nextNode.left = node.left
+                nextNode.right?.parent = nextNode
+                nextNode.left?.parent = nextNode
+                replaceNodeParent(node, nextNode)
+                return parent
+            }
+        }
+        return node.parent
+    }
+
     protected fun getParent(key: Key): BinNode<Key, Value>? {
         tailrec fun recFind(curNode: BinNode<Key, Value>?): BinNode<Key, Value>? {
             return if (curNode == null)
@@ -127,7 +158,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     protected fun minElement(key: Key): BinNode<Key, Value>? {
         var minNode: BinNode<Key, Value>? = getNode(key) ?: return null
         while (minNode?.left != null) {
-            minNode = minNode.left ?: error("unexpected null")
+            minNode = minNode.left ?: error("min element not found: unexpected null")
         }
         return minNode
     }
@@ -135,12 +166,12 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     protected fun maxElement(key: Key): BinNode<Key, Value>? {
         var maxNode: BinNode<Key, Value>? = getNode(key) ?: return null
         while (maxNode?.right != null) {
-            maxNode = maxNode.right ?: error("unexpected null")
+            maxNode = maxNode.right ?: error("max element not found: unexpected null")
         }
         return maxNode
     }
 
-    protected open fun transplant(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>) {
+    protected open fun replaceNodeParent(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>) {
         val parent: BinNode<Key, Value>? = oldNode.parent
         if (parent == null)
             rootNode = newNode

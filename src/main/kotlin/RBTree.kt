@@ -12,18 +12,27 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         }
     }
 
+
     override fun insert(key: Key, value: Value) {
-        val node = insertService(RBNode(key, value)) as RBNode<Key, Value>
-        rebalancing(node)
-        TODO("add balancing")
+        val node = insertService(BinNode(key, value)) as RBNode?
+        rebalancingInsert(node)
     }
 
     override fun remove(key: Key) {
+        val node = getNode(key) as RBNode? ?: error("remove is not possible: there is no node with this key")
+        val nextNode = nextElement(node) as RBNode?
+        if ((node.left != null) && (node.right != null)) {
+            if ((nextNode?.Black ?: error("remove is not possible: unexpected null")) != node.Black) {
+                node.swapColor()
+                nextNode.swapColor()
+            }
+        }
         val parent = removeNode(key) as RBNode<Key, Value>?
-        TODO("will do soon")
+        rebalancingRemove(parent, node.Black)
     }
 
-    private tailrec fun rebalancing(node: RBNode<Key, Value>) {
+    private tailrec fun rebalancingInsert(node: RBNode<Key, Value>?) {
+        if (node == null) error("can't insert node")
         val parent = getParent(node.key) as RBNode?
         if (parent == null) (rootNode as RBNode?)?.Black = true
         else if (parent.Black) return
@@ -34,19 +43,28 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                 parent.swapColor()
                 uncle.swapColor()
                 grandparent.swapColor()
-                rebalancing(grandparent)
+                rebalancingInsert(grandparent)
             } else {
                 if (grandparent.left == parent) {
                     if (parent.right == node) rotation(parent.key, RotationType.Left)
                     val newNode = rotation(grandparent.key, RotationType.Right) as RBNode?
-                    grandparent.swapColor()
                     newNode?.swapColor() ?: error("balancing error")
                 } else {
                     if (parent.left == node) rotation(parent.key, RotationType.Right)
                     val newNode = rotation(grandparent.key, RotationType.Left) as RBNode?
-                    grandparent.swapColor()
                     newNode?.swapColor() ?: error("balancing error")
                 }
+                grandparent.swapColor()
+            }
+        }
+    }
+
+    protected fun rebalancingRemove(parent: RBNode<Key, Value>?, black: Boolean) {
+        if (parent == null) return
+        else if (!black) return
+        else {
+            if (parent.Black) {
+                return
             }
         }
     }

@@ -20,7 +20,7 @@ abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value>()
                     node.right?.parent = it
                 }
             }
-            transplant(it, node)
+            replaceNodeParent(it, node)
             it.parent = node
             node.left = it
             return node
