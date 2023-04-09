@@ -1,8 +1,13 @@
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
+import kotlin.random.Random
 import kotlin.test.assertContains
-import org.junit.jupiter.api.assertAll
 
 class BSTreeTest {
     fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
@@ -11,37 +16,60 @@ class BSTreeTest {
         return tree
     }
 
-    @Nested
-    inner class `Test insert` {
-        @Test
-        fun `insert one node test`() {
-            val expected = "4k"
-            assertEquals(expected, generateTreeWithInsert(4).get(4))
+    fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String>? = null): Array<String?> {
+        return Array(arr.size) {
+            if (arr[it] != remove) {
+                if (arr[it] == chValue?.first) chValue.second else "${arr[it]}k"
+            } else null
+        }
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("insertTestsFactory")
+    @DisplayName("insert-get simple tests")
+    fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        if (extraInsert != null) tree.insert(extraInsert.first, extraInsert.second)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), chValue = extraInsert), tree.get(*arrKeys).toTypedArray())
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("removeTestsFactory")
+    @DisplayName("remove tests")
+    fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        tree.remove(remove)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), remove = remove), tree.get(*arrKeys).toTypedArray())
+    }
+
+    companion object {
+        @JvmStatic
+        fun insertTestsFactory(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(arrayOf(4), null, "insert one node test"),
+                Arguments.of(arrayOf(4), Pair(4, "5k"), "two inserts with eq. keys of the first node"),
+                Arguments.of(
+                    arrayOf(4, 1, 5, 6),
+                    Pair(4, "5k"),
+                    "two inserts with eq. keys of the first node in non-degenerate tree"
+                ),
+                Arguments.of(arrayOf(5, 6, 4), Pair(4, "5k"), "two inserts with eq. keys of node"),
+                Arguments.of(Array(1000) { Random.nextInt() }, Pair(Random.nextInt(), "random"), "random insert")
+            )
         }
 
-        @Nested
-        inner class `Equal key` {
-            @Test
-            fun `two inserts of the first node`() {
-                val tree = generateTreeWithInsert(4)
-                tree.insert(4, "5k")
-                assertEquals("5k", tree.get(4))
-            }
-
-            @Test
-            fun `two inserts of the first node in non-degenerate tree`() {
-                val tree = generateTreeWithInsert(4, 1, 5, 6)
-                tree.insert(4, "5k")
-                assertEquals("5k", tree.get(4))
-            }
-
-
-            @Test
-            fun `two inserts of node`() {
-                val tree = generateTreeWithInsert(5, 6, 4)
-                tree.insert(4, "5k")
-                assertEquals("5k", tree.get(4))
-            }
+        @JvmStatic
+        fun removeTestsFactory(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(arrayOf(4), 4, "remove one root node"),
+                Arguments.of(arrayOf(4, 6, 5, 7), 6, "remove non-root node"),
+                Arguments.of(arrayOf(4, 6, 5, 7), 5, "remove left leaf"),
+                Arguments.of(arrayOf(4, 6, 5, 7), 7, "remove right leaf"),
+                Arguments.of(arrayOf(4, 6, 5, 7), 4, "remove root node in non-degenerate tree"),
+                Arguments.of(Array(0) { it }, 4, "remove in empty tree"),
+                Arguments.of(arrayOf(2, 1, 3, 5), 4, "remove non-inserted node"),
+                Arguments.of(Array(1000) { Random.nextInt() }, Random.nextInt(), "random remove")
+            )
         }
     }
 
@@ -66,47 +94,6 @@ class BSTreeTest {
         }
     }
 
-    @Nested
-    inner class `remove node`() {
-        @Test
-        fun `remove one root node`() {
-            val tree = generateTreeWithInsert(4)
-            tree.remove(4)
-            assertNull(tree.get(4))
-        }
-
-        @Test
-        fun `remove non-root node`() {
-            val tree = generateTreeWithInsert(4, 6, 5, 7)
-            tree.remove(6)
-            assertAll({ assertNull(tree.get(6)) },
-                { assertArrayEquals(arrayOf("4k", "5k", "7k"), tree.get(4, 5, 7).toTypedArray()) })
-        }
-
-        @Test
-        fun `remove left leaf`() {
-            val tree = generateTreeWithInsert(4, 6, 5, 7)
-            tree.remove(5)
-            assertAll({ assertNull(tree.get(5)) },
-                { assertArrayEquals(arrayOf("4k", "6k", "7k"), tree.get(4, 6, 7).toTypedArray()) })
-        }
-
-        @Test
-        fun `remove right leaf`() {
-            val tree = generateTreeWithInsert(4, 6, 5, 7)
-            tree.remove(7)
-            assertAll({ assertNull(tree.get(7)) },
-                { assertArrayEquals(arrayOf("4k", "6k", "5k"), tree.get(4, 6, 5).toTypedArray()) })
-        }
-
-        @Test
-        fun `remove root node in non-degenerate tree`() {
-            val tree = generateTreeWithInsert(4, 6, 5, 7)
-            tree.remove(4)
-            assertAll({ assertNull(tree.get(4)) },
-                { assertArrayEquals(arrayOf("5k", "6k", "7k"), tree.get(5, 6, 7).toTypedArray()) })
-        }
-    }
 
     @Nested
     inner class `tests using debug` {
@@ -138,4 +125,6 @@ class BSTreeTest {
             assertEquals("12 \n7 16 \n6 9 13 18 \n- - - - - 14 ", tree.Debug().treeKeysInString())
         }
     }
+
+
 }
