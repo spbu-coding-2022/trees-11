@@ -126,5 +126,18 @@ class BSTreeTest {
         }
     }
 
+    @Test
+    fun `my struct`() {
+        class my(
+            val arg1: String
+        ) : Comparable<my> {
+            override fun compareTo(other: my): Int = arg1.compareTo(other.arg1)
+        }
 
+        val tree = BSTree(Pair(my("11"), 1), Pair(my("111"), 111), Pair(my("321"), 321))
+        tree.remove(my("321"))
+        assertAll({ assertEquals(1, tree.get(my("11"))) },
+            { assertEquals(111, tree.get(my("111"))) },
+            { assertNull(tree.get(my("321"))) })
+    }
 }
