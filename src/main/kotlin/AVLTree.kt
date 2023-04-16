@@ -1,4 +1,4 @@
-class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
+class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class AVLNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
@@ -7,6 +7,10 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         right: AVLNode<Key, Value>? = null,
         var height: UByte = 0U
     ) : BinNode<Key, Value>(key, value, parent, left, right)
+
+    constructor() : super()
+    constructor(key: Key, value: Value) : super(key, value)
+    constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
     override fun insert(key: Key, value: Value) {
         if (rootNode != null) {
