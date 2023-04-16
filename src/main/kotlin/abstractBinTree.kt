@@ -1,8 +1,9 @@
 import kotlin.math.abs
 
+
 abstract class BinTree<Key : Comparable<Key>, Value> {
     protected open class BinNode<Key : Comparable<Key>, Value>(
-        val key: Key,
+        var key: Key,
         var value: Value,
         var parent: BinNode<Key, Value>? = null,
         var left: BinNode<Key, Value>? = null,
@@ -77,8 +78,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return null
     }
 
-    protected fun removeNode(key: Key): BinNode<Key, Value>? {
-        val node: BinNode<Key, Value> = getNode(key) ?: return null
+    protected fun removeService(node: BinNode<Key, Value>) {
         if ((node.left == null) && (node.right == null)) {
             val parent: BinNode<Key, Value>? = node.parent
             if (parent == null)
@@ -87,25 +87,22 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
                 parent.left = null
             else
                 parent.right = null
-            return parent
         } else if (node.left == null)
             replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
         else if (node.right == null)
             replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
         else {
-            val nextNode = nextElement(node)
-            if (nextNode != null) {
-                val parent = nextNode.parent
+            val nextNode = nextElement(node) ?: error("remove error: unexpected null")
+            val parent = nextNode.parent
+            if (parent != node) {
                 nextNode.right?.let { replaceNodeParent(nextNode, it) }
                 nextNode.right = node.right
-                nextNode.left = node.left
                 nextNode.right?.parent = nextNode
-                nextNode.left?.parent = nextNode
-                replaceNodeParent(node, nextNode)
-                return parent
             }
+            nextNode.left = node.left
+            nextNode.left?.parent = nextNode
+            replaceNodeParent(node, nextNode)
         }
-        return node.parent
     }
 
     protected fun getParent(key: Key): BinNode<Key, Value>? {
@@ -171,7 +168,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return maxNode
     }
 
-    protected open fun replaceNodeParent(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>) {
+    protected open fun replaceNodeParent(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>?) {
         val parent: BinNode<Key, Value>? = oldNode.parent
         if (parent == null)
             rootNode = newNode
@@ -180,7 +177,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         } else {
             parent.right = newNode
         }
-        newNode.parent = parent
+        newNode?.let { it.parent = parent}
     }
 
     protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
