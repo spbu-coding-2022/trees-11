@@ -209,7 +209,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
     }
 
-    open inner class Debug {
+    internal open inner class Debug {
         fun treeKeysInString(): String {
             var sizeOfLevel = 1
             var elemInTheLevel = 0
