@@ -9,19 +9,19 @@ import java.util.stream.Stream
 import kotlin.random.Random
 import kotlin.test.assertContains
 
+fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String>? = null): Array<String?> {
+    return Array(arr.size) {
+        if (arr[it] != remove) {
+            if (arr[it] == chValue?.first) chValue.second else "${arr[it]}k"
+        } else null
+    }
+}
+
 class BSTreeTest {
     fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
         val tree = BSTree<Int, String>()
         for (i in arr) tree.insert(i, "${i}k")
         return tree
-    }
-
-    fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String>? = null): Array<String?> {
-        return Array(arr.size) {
-            if (arr[it] != remove) {
-                if (arr[it] == chValue?.first) chValue.second else "${arr[it]}k"
-            } else null
-        }
     }
 
     companion object {
