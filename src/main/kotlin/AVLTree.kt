@@ -17,8 +17,54 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
             rootNode = AVLNode(key, value)
         balance(rootNode as AVLNode)
     }
+
+    private fun searchNode(key: Key, node: AVLNode<Key, Value>?): AVLNode<Key, Value>? {
+        if (node == null || key == node.key) {
+            return node
+        }
+        return if (key < node.key) {
+            searchNode(key, node.left as AVLNode<Key, Value>?)
+        } else {
+            searchNode(key, node.right as AVLNode<Key, Value>?)
+        }
+    }
+    private fun transplant(node: AVLNode<Key, Value>, newNode: AVLNode<Key, Value>) {
+        if (node.parent == null) {
+            rootNode = newNode
+        } else if (node == node.parent?.left) {
+            node.parent?.left = newNode
+        } else {
+            node.parent?.right = newNode
+        }
+        newNode.parent = node.parent
+    }
+
+    private fun minNode(node: AVLNode<Key, Value>): AVLNode<Key, Value> {
+        var currentNode = node
+        while (currentNode.left != null) {
+            currentNode = currentNode.left as AVLNode<Key, Value>
+        }
+        return currentNode
+    }
+
     override fun remove(key: Key) {
-        TODO("Not yet implemented")
+        val node = searchNode(key, rootNode as AVLNode<Key, Value>) ?: return
+        when {
+            node.left == null -> transplant(node, node.right as AVLNode<Key, Value>)
+            node.right == null -> transplant(node, node.left as AVLNode<Key, Value>)
+            else -> {
+                val successor = minNode(node.right!! as AVLNode<Key, Value>)
+                if (successor.parent != node) {
+                    transplant(successor, successor.right as AVLNode<Key, Value>)
+                    successor.right = node.right
+                    successor.right?.parent = successor
+                }
+                transplant(node, successor)
+                successor.left = node.left
+                successor.left?.parent = successor
+            }
+        }
+        balance(node.parent as AVLNode<Key, Value>)
     }
     private fun balance(node: AVLNode<Key, Value>) {
         if (node.left != null && node.right != null) {
