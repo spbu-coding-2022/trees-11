@@ -24,24 +24,6 @@ class BSTreeTest {
         }
     }
 
-    @ParameterizedTest(name = "{2}")
-    @MethodSource("insertTestsFactory")
-    @DisplayName("insert-get simple tests")
-    fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
-        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
-        if (extraInsert != null) tree.insert(extraInsert.first, extraInsert.second)
-        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), chValue = extraInsert), tree.get(*arrKeys).toTypedArray())
-    }
-
-    @ParameterizedTest(name = "{2}")
-    @MethodSource("removeTestsFactory")
-    @DisplayName("remove tests")
-    fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
-        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
-        tree.remove(remove)
-        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), remove = remove), tree.get(*arrKeys).toTypedArray())
-    }
-
     companion object {
         @JvmStatic
         fun insertTestsFactory(): Stream<Arguments> {
@@ -71,6 +53,24 @@ class BSTreeTest {
                 Arguments.of(Array(1000) { Random.nextInt() }, Random.nextInt(), "random remove")
             )
         }
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("insertTestsFactory")
+    @DisplayName("insert-get simple tests")
+    fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        if (extraInsert != null) tree.insert(extraInsert.first, extraInsert.second)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), chValue = extraInsert), tree.get(*arrKeys).toTypedArray())
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("removeTestsFactory")
+    @DisplayName("remove tests")
+    fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        tree.remove(remove)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), remove = remove), tree.get(*arrKeys).toTypedArray())
     }
 
     @Nested
