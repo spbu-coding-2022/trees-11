@@ -93,9 +93,10 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
             replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
         else {
             val nextNode = nextElement(node) ?: error("remove error: unexpected null")
-            val parent = nextNode.parent
+            val parent = nextNode.parent ?: error("remove error: unexpected null")
             if (parent != node) {
-                nextNode.right?.let { replaceNodeParent(nextNode, it) }
+                if (nextNode.right != null) replaceNodeParent(nextNode, nextNode.right)
+                else parent.left = null
                 nextNode.right = node.right
                 nextNode.right?.parent = nextNode
             }
