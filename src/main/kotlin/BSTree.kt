@@ -8,7 +8,7 @@ open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     }
 
     override fun remove(key: Key) {
-        val node = getNode(key) ?: error("remove is not possible: there is no node with this key")
+        val node = getNode(key) ?: return
         removeService(node)
     }
 }
