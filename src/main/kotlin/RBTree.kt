@@ -89,12 +89,12 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                 rebalancingInsert(grandparent)
             } else {
                 if (grandparent.left == parent) {
-                    if (parent.right == node) rotation(parent, RotationType.Left)
-                    val newNode = rotation(grandparent, RotationType.Right) as RBNode?
+                    if (parent.right == node) rotation(parent, RotationType.LEFT)
+                    val newNode = rotation(grandparent, RotationType.RIGHT) as RBNode?
                     newNode?.swapColor() ?: error("balancing error")
                 } else {
-                    if (parent.left == node) rotation(parent, RotationType.Right)
-                    val newNode = rotation(grandparent, RotationType.Left) as RBNode?
+                    if (parent.left == node) rotation(parent, RotationType.RIGHT)
+                    val newNode = rotation(grandparent, RotationType.LEFT) as RBNode?
                     newNode?.swapColor() ?: error("balancing error")
                 }
                 grandparent.swapColor()
@@ -113,7 +113,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                 if (brother?.color == RED) {
                     (node.parent as RBNode<Key, Value>?)?.swapColor()
                     brother.swapColor()
-                    rotation(node.parent, RotationType.Left)
+                    rotation(node.parent, RotationType.LEFT)
                     brother = (node.parent as RBNode<Key, Value>?)?.right as RBNode<Key, Value>?
                 }
                 if ((((brother?.left as RBNode<Key, Value>?) == null) || (brother?.left as RBNode<Key, Value>?)?.color == BLACK) &&
@@ -125,13 +125,13 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                     if ((brother?.right as RBNode<Key, Value>?)?.color == BLACK) {
                         (brother?.left as RBNode<Key, Value>?)?.color = BLACK
                         brother?.color = RED
-                        rotation(brother, RotationType.Right)
+                        rotation(brother, RotationType.RIGHT)
                         brother = node.parent?.right as RBNode<Key, Value>?
                     }
                     brother?.color = (node.parent as RBNode<Key, Value>).color
                     (node.parent as RBNode<Key, Value>).color = BLACK
                     (brother?.right as RBNode<Key, Value>).color = BLACK
-                    rotation(node.parent as RBNode<Key, Value>?, RotationType.Left)
+                    rotation(node.parent as RBNode<Key, Value>?, RotationType.LEFT)
                     node = rootNode as RBNode<Key, Value>
                 }
             }
@@ -140,7 +140,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                 if (brother?.color == RED) {
                     (node.parent as RBNode<Key, Value>?)?.swapColor()
                     brother.swapColor()
-                    rotation(node.parent, RotationType.Right)
+                    rotation(node.parent, RotationType.RIGHT)
                     brother = (node.parent as RBNode<Key, Value>?)?.left as RBNode<Key, Value>?
                 }
                 if ((((brother?.left as RBNode<Key, Value>?) == null) || (brother?.left as RBNode<Key, Value>?)?.color == BLACK) &&
@@ -152,13 +152,13 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                     if ((brother?.left as RBNode<Key, Value>?)?.color == BLACK) {
                         (brother?.right as RBNode<Key, Value>?)?.color = BLACK
                         brother?.color = RED
-                        rotation(brother, RotationType.Left)
+                        rotation(brother, RotationType.LEFT)
                         brother = node.parent?.left as RBNode<Key, Value>?
                     }
                     brother?.color = (node.parent as RBNode<Key, Value>).color
                     (node.parent as RBNode<Key, Value>).color = BLACK
                     (brother?.left as RBNode<Key, Value>).color = BLACK
-                    rotation(node.parent as RBNode<Key, Value>?, RotationType.Right)
+                    rotation(node.parent as RBNode<Key, Value>?, RotationType.RIGHT)
                     node = rootNode as RBNode<Key, Value>
                 }
             }
