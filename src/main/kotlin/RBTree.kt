@@ -1,7 +1,7 @@
 const val RED = false
 const val BLACK = true
 
-class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
+class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class RBNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
@@ -11,14 +11,17 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         var color: Boolean = RED
     ) : BinNode<Key, Value>(key, value, parent, left, right) {
         fun swapColor() {
-            color = if (color == BLACK) RED else BLACK
+            color = !color
         }
     }
 
+    constructor() : super()
+    constructor(key: Key, value: Value) : super(key, value)
+    constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
     override fun insert(key: Key, value: Value) {
-        val node = insertService(BinNode(key, value)) as RBNode?
-        rebalancingInsert(node)
+        val node = insertService(RBNode(key, value))
+        if (node != null) balancingInsert(node as RBNode)
     }
 
     override fun remove(key: Key) {
@@ -35,25 +38,23 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         //delete node without child
         if ((removeNode.left == null) && (removeNode.right == null)) {
             val parent: BinNode<Key, Value>? = removeNode.parent
-            if (parent == null)
-                rootNode = null
-            else if (removeNode.color == RED)
-                replaceNodeParent(removeNode, null)
+            if (parent == null) rootNode = null
+            else if (removeNode.color == RED) replaceNodeParent(removeNode, null)
 
             //special case for black node without child
             else {
-                rebalancingRemove(removeNode)
+                balancingRemove(removeNode)
                 replaceNodeParent(removeNode, null)
             }
 
         }
         //delete black node with one red child
-        else if (node.left == null) {
-            replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
-            (node.right as RBNode).swapColor()
+        else if (removeNode.left == null) {
+            replaceNodeParent(removeNode, removeNode.right ?: error("remove error: unexpected null"))
+            (removeNode.right as RBNode).swapColor()
         } else {
-            replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
-            (node.left as RBNode).swapColor()
+            replaceNodeParent(removeNode, removeNode.left ?: error("remove error: unexpected null"))
+            (removeNode.left as RBNode).swapColor()
         }
     }
 
@@ -74,19 +75,18 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
         return getSibling(parent as RBNode?)
     }
 
-    private fun rebalancingInsert(node: RBNode<Key, Value>?) {
-        if (node == null) error("can't insert node")
+    private fun balancingInsert(node: RBNode<Key, Value>) {
         val parent = getParent(node.key) as RBNode?
         if (parent == null) (rootNode as RBNode?)?.color = BLACK
         else if (parent.color == BLACK) return
         else {
-            val uncle = getUncle(node) ?: error("balancing error")
+            val uncle = getUncle(node)
             val grandparent = getGrandparent(node) ?: error("balancing error")
-            if (uncle.color == RED) {
+            if (uncle?.color == RED) {
                 parent.swapColor()
                 uncle.swapColor()
                 grandparent.swapColor()
-                rebalancingInsert(grandparent)
+                balancingInsert(grandparent)
             } else {
                 if (grandparent.left == parent) {
                     if (parent.right == node) rotation(parent, RotationType.LEFT)
@@ -103,7 +103,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
     }
 
 
-    protected fun rebalancingRemove(removeNode: RBNode<Key, Value>?) {
+    protected fun balancingRemove(removeNode: RBNode<Key, Value>?) {
         var node = removeNode
 
         while ((node != rootNode) && (node?.color == BLACK)) {
@@ -116,15 +116,13 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                     rotation(node.parent, RotationType.LEFT)
                     brother = (node.parent as RBNode<Key, Value>?)?.right as RBNode<Key, Value>?
                 }
-                if ((((brother?.left as RBNode<Key, Value>?) == null) || (brother?.left as RBNode<Key, Value>?)?.color == BLACK) &&
-                    (((brother?.right as RBNode<Key, Value>?) == null) || (brother?.right as RBNode<Key, Value>?)?.color == BLACK)
-                ) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
-                    if ((brother?.right as RBNode<Key, Value>?)?.color == BLACK) {
-                        (brother?.left as RBNode<Key, Value>?)?.color = BLACK
-                        brother?.color = RED
+                    if ((brother.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK) {
+                        (brother.left as RBNode<Key, Value>?)?.color = BLACK
+                        brother.color = RED
                         rotation(brother, RotationType.RIGHT)
                         brother = node.parent?.right as RBNode<Key, Value>?
                     }
@@ -143,15 +141,13 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value>() {
                     rotation(node.parent, RotationType.RIGHT)
                     brother = (node.parent as RBNode<Key, Value>?)?.left as RBNode<Key, Value>?
                 }
-                if ((((brother?.left as RBNode<Key, Value>?) == null) || (brother?.left as RBNode<Key, Value>?)?.color == BLACK) &&
-                    (((brother?.right as RBNode<Key, Value>?) == null) || (brother?.right as RBNode<Key, Value>?)?.color == BLACK)
-                ) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
-                    if ((brother?.left as RBNode<Key, Value>?)?.color == BLACK) {
-                        (brother?.right as RBNode<Key, Value>?)?.color = BLACK
-                        brother?.color = RED
+                    if ((brother.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) {
+                        (brother.right as RBNode<Key, Value>?)?.color = BLACK
+                        brother.color = RED
                         rotation(brother, RotationType.LEFT)
                         brother = node.parent?.left as RBNode<Key, Value>?
                     }
