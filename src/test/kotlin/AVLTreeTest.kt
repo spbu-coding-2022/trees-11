@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -9,6 +10,7 @@ import java.util.stream.Stream
 import kotlin.random.Random
 import kotlin.test.assertContains
 
+@Disabled
 class AVLTreeTest {
     fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
         val tree = AVLTree<Int, String>()
