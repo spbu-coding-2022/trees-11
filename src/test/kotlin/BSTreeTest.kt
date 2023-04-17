@@ -9,37 +9,19 @@ import java.util.stream.Stream
 import kotlin.random.Random
 import kotlin.test.assertContains
 
+fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String>? = null): Array<String?> {
+    return Array(arr.size) {
+        if (arr[it] != remove) {
+            if (arr[it] == chValue?.first) chValue.second else "${arr[it]}k"
+        } else null
+    }
+}
+
 class BSTreeTest {
     fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
         val tree = BSTree<Int, String>()
         for (i in arr) tree.insert(i, "${i}k")
         return tree
-    }
-
-    fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String>? = null): Array<String?> {
-        return Array(arr.size) {
-            if (arr[it] != remove) {
-                if (arr[it] == chValue?.first) chValue.second else "${arr[it]}k"
-            } else null
-        }
-    }
-
-    @ParameterizedTest(name = "{2}")
-    @MethodSource("insertTestsFactory")
-    @DisplayName("insert-get simple tests")
-    fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
-        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
-        if (extraInsert != null) tree.insert(extraInsert.first, extraInsert.second)
-        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), chValue = extraInsert), tree.get(*arrKeys).toTypedArray())
-    }
-
-    @ParameterizedTest(name = "{2}")
-    @MethodSource("removeTestsFactory")
-    @DisplayName("remove tests")
-    fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
-        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
-        tree.remove(remove)
-        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), remove = remove), tree.get(*arrKeys).toTypedArray())
     }
 
     companion object {
@@ -71,6 +53,24 @@ class BSTreeTest {
                 Arguments.of(Array(1000) { Random.nextInt() }, Random.nextInt(), "random remove")
             )
         }
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("insertTestsFactory")
+    @DisplayName("insert-get simple tests")
+    fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        if (extraInsert != null) tree.insert(extraInsert.first, extraInsert.second)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), chValue = extraInsert), tree.get(*arrKeys).toTypedArray())
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("removeTestsFactory")
+    @DisplayName("remove tests")
+    fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
+        val tree = generateTreeWithInsert(*arrKeys.toIntArray())
+        tree.remove(remove)
+        assertArrayEquals(keysToValues(*arrKeys.toIntArray(), remove = remove), tree.get(*arrKeys).toTypedArray())
     }
 
     @Nested
@@ -126,5 +126,18 @@ class BSTreeTest {
         }
     }
 
+    @Test
+    fun `my struct`() {
+        class my(
+            val arg1: String
+        ) : Comparable<my> {
+            override fun compareTo(other: my): Int = arg1.compareTo(other.arg1)
+        }
 
+        val tree = BSTree(Pair(my("11"), 1), Pair(my("111"), 111), Pair(my("321"), 321))
+        tree.remove(my("321"))
+        assertAll({ assertEquals(1, tree.get(my("11"))) },
+            { assertEquals(111, tree.get(my("111"))) },
+            { assertNull(tree.get(my("321"))) })
+    }
 }
