@@ -13,78 +13,73 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
     override fun insert(key: Key, value: Value) {
-        if (rootNode != null) {
-            if ((rootNode as AVLNode).height != 255.toUByte()) {
-                insertService(AVLNode(key, value))
-            }
-        } else
-            rootNode = AVLNode(key, value)
-        balance(rootNode as AVLNode)
+        rootNode?.let { if ((rootNode as AVLNode<Key, Value>).height == 255.toUByte()) return }
+        val node = insertService(AVLNode(key, value)) as AVLNode<Key, Value>?
+        balancing(node ?: return)
     }
 
     override fun remove(key: Key) {
-        TODO("Not yet implemented")
-    }
-    private fun balance(node: AVLNode<Key, Value>) {
-        if (node.left != null && node.right != null) {
-            if ((node.left as AVLNode).height > (node.right as AVLNode).height + 1.toUByte()) {
-                if ((node.left!!.left as AVLNode).height >= (node.left!!.right as AVLNode).height) {
-                    rotateRight(node)
-                } else {
-                    rotateLeft(node.left!! as AVLNode<Key, Value>)
-                    rotateRight(node)
-                }
-            } else if ((node.right as AVLNode).height > (node.left as AVLNode).height + 1.toUByte()) {
-                if ((node.right!!.right as AVLNode).height >= (node.right!!.left as AVLNode).height) {
-                    rotateLeft(node)
-                } else {
-                    rotateRight(node.right!! as AVLNode<Key, Value>)
-                    rotateLeft(node)
-                }
+        val removeNode = getNode(key) ?: return
+        if ((removeNode.right != null) && (removeNode.left != null)) {
+            val node = nextElement(removeNode) as AVLNode<Key, Value>
+            if (node.parent == removeNode) {
+                removeService(removeNode)
+                balancing(node)
+            } else {
+                val nextNodeParent = node.parent as AVLNode<Key, Value>
+                removeService(removeNode)
+                balancing(nextNodeParent)
             }
-            updateHeight(node)
-            if (node.parent != null) {
-                balance(node.parent!! as AVLNode<Key, Value>)
+        } else {
+            removeService(removeNode)
+            if (rootNode != null) balancing(removeNode.parent as AVLNode<Key, Value>)
+        }
+
+    }
+
+    private tailrec fun balancing(node: AVLNode<Key, Value>): AVLNode<Key, Value> {
+        var currentNode = node
+        updateHeight(currentNode)
+
+        if (balanceFactor(currentNode) >= 2) {
+            if (balanceFactor(currentNode.right as AVLNode<Key, Value>) >= 0) {
+                currentNode = rotation(currentNode, RotationType.LEFT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.left as AVLNode<Key, Value>?)
+            } else {
+                currentNode = rotation(currentNode.right, RotationType.RIGHT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.right as AVLNode<Key, Value>?)
+                currentNode = rotation(currentNode.parent, RotationType.LEFT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.left as AVLNode<Key, Value>?)
+            }
+        } else if (balanceFactor(currentNode) <= -2) {
+            if (balanceFactor(currentNode.left as AVLNode<Key, Value>) <= 0) {
+                currentNode = rotation(currentNode, RotationType.RIGHT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.right as AVLNode<Key, Value>?)
+            } else {
+                currentNode = rotation(currentNode.left, RotationType.LEFT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.left as AVLNode<Key, Value>?)
+                currentNode = rotation(currentNode.parent, RotationType.RIGHT) as AVLNode<Key, Value>
+                updateHeightAfterRotation(currentNode.right as AVLNode<Key, Value>?)
             }
         }
+        (currentNode.parent as AVLNode<Key, Value>?)?.let { return balancing(it) }
+        return currentNode
     }
+
     private fun updateHeight(node: AVLNode<Key, Value>) {
         val left = node.left?.let { (it as AVLNode).height } ?: 0U
         val right = node.right?.let { (it as AVLNode).height } ?: 0U
-        node.height = (maxOf(left, right) + 1.toUByte()).toUByte()
+        node.height = (maxOf(left, right) + 1U).toUByte()
     }
-    private fun rotateLeft(node: AVLNode<Key, Value>) {
-        val child = node.right!!
-        child.parent = node.parent
-        if (node.parent == null) {
-            rootNode = child
-        } else if (node.parent!!.left == node) {
-            node.parent!!.left = child
-        } else {
-            node.parent!!.right = child
-        }
-        node.right = child.left
-        child.left?.parent = node
-        node.parent = child
-        child.left = node
-        updateHeight(node)
-        updateHeight(child as AVLNode<Key, Value>)
+
+    private fun updateHeightAfterRotation(node: AVLNode<Key, Value>?) {
+        node?.let { updateHeight(it) } ?: 0U
+        node?.parent?.let { updateHeight(it as AVLNode<Key, Value>) } ?: 0U
     }
-    private fun rotateRight(node: AVLNode<Key, Value>) {
-        val child = node.left!!
-        child.parent = node.parent
-        if (node.parent == null) {
-            rootNode = child
-        } else if (node.parent!!.left == node) {
-            node.parent!!.left = child
-        } else {
-            node.parent!!.right = child
-        }
-        node.left = child.right
-        child.right?.parent = node
-        node.parent = child
-        child.right = node
-        updateHeight(node)
-        updateHeight(child as AVLNode<Key, Value>)
+
+    private fun balanceFactor(node: AVLNode<Key, Value>): Int {
+        val left = node.left?.let { (it as AVLNode).height.toInt() } ?: 0
+        val right = node.right?.let { (it as AVLNode).height.toInt() } ?: 0
+        return (right - left)
     }
 }
