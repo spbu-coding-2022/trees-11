@@ -10,7 +10,7 @@ import kotlin.random.Random
 import kotlin.test.assertContains
 
 class RBTreeTest {
-    fun generateTreeWithInsert(vararg arr: Int): RBTree<Int, String> {
+    private fun generateTreeWithInsert(vararg arr: Int): RBTree<Int, String> {
         val tree = RBTree<Int, String>()
         for (i in arr) tree.insert(i, "${i}k")
         return tree
@@ -130,7 +130,8 @@ class RBTreeTest {
     }
 
     @Nested
-    inner class `constructors test` {
+    @DisplayName("constructors test")
+    inner class ConstructorsTest {
         @Test
         fun `insert key, value`() {
             val tree = RBTree(4, "4k")
@@ -154,16 +155,16 @@ class RBTreeTest {
 
     @Test
     fun `my struct`() {
-        class my(
+        class My(
             val arg1: String
-        ) : Comparable<my> {
-            override fun compareTo(other: my): Int = arg1.compareTo(other.arg1)
+        ) : Comparable<My> {
+            override fun compareTo(other: My): Int = arg1.compareTo(other.arg1)
         }
 
-        val tree = RBTree(Pair(my("11"), 1), Pair(my("111"), 111), Pair(my("321"), 321))
-        tree.remove(my("321"))
-        Assertions.assertAll({ Assertions.assertEquals(1, tree.get(my("11"))) },
-            { Assertions.assertEquals(111, tree.get(my("111"))) },
-            { Assertions.assertNull(tree.get(my("321"))) })
+        val tree = RBTree(Pair(My("11"), 1), Pair(My("111"), 111), Pair(My("321"), 321))
+        tree.remove(My("321"))
+        Assertions.assertAll({ Assertions.assertEquals(1, tree.get(My("11"))) },
+            { Assertions.assertEquals(111, tree.get(My("111"))) },
+            { Assertions.assertNull(tree.get(My("321"))) })
     }
 }

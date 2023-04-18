@@ -74,7 +74,8 @@ class BSTreeTest {
     }
 
     @Nested
-    inner class `constructors test` {
+    @DisplayName("constructors test")
+    inner class ConstructorsTest {
         @Test
         fun `insert key, value`() {
             val tree = BSTree(4, "4k")
@@ -96,7 +97,8 @@ class BSTreeTest {
 
 
     @Nested
-    inner class `tests using debug` {
+    @DisplayName("tests using debug")
+    inner class TestsUsingDebug {
         @Test
         fun `insert three nodes test`() {
             assertEquals("2 \n1 3 \n", generateTreeWithInsert(2, 1, 3).Debug().treeKeysInString())
@@ -128,16 +130,16 @@ class BSTreeTest {
 
     @Test
     fun `my struct`() {
-        class my(
+        class My(
             val arg1: String
-        ) : Comparable<my> {
-            override fun compareTo(other: my): Int = arg1.compareTo(other.arg1)
+        ) : Comparable<My> {
+            override fun compareTo(other: My): Int = arg1.compareTo(other.arg1)
         }
 
-        val tree = BSTree(Pair(my("11"), 1), Pair(my("111"), 111), Pair(my("321"), 321))
-        tree.remove(my("321"))
-        assertAll({ assertEquals(1, tree.get(my("11"))) },
-            { assertEquals(111, tree.get(my("111"))) },
-            { assertNull(tree.get(my("321"))) })
+        val tree = BSTree(Pair(My("11"), 1), Pair(My("111"), 111), Pair(My("321"), 321))
+        tree.remove(My("321"))
+        assertAll({ assertEquals(1, tree.get(My("11"))) },
+            { assertEquals(111, tree.get(My("111"))) },
+            { assertNull(tree.get(My("321"))) })
     }
 }
