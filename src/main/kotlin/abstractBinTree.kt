@@ -145,7 +145,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     }
 
     fun get(vararg keys: Key): List<Value?> {
-        return List(keys.size, {get(keys[it])})
+        return List(keys.size) { get(keys[it]) }
     }
 
     protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>? {
