@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -74,7 +73,7 @@ class AVLTreeTest {
         }
     }
 
-    @ParameterizedTest(name = "{2}")
+    @ParameterizedTest(name = "{2} ({0}, {1})")
     @MethodSource("insertTestsFactory")
     @DisplayName("insert-get simple tests")
     fun `insert-get simple tests`(arrKeys: Array<Int>, extraInsert: Pair<Int, String>?, name: String) {
@@ -85,7 +84,7 @@ class AVLTreeTest {
         )
     }
 
-    @ParameterizedTest(name = "{2}")
+    @ParameterizedTest(name = "{2} ({0}, {1})")
     @MethodSource("removeTestsFactory")
     @DisplayName("remove tests")
     fun `remove tests`(arrKeys: Array<Int>, remove: Int, name: String) {
@@ -96,25 +95,26 @@ class AVLTreeTest {
         )
     }
 
-    @ParameterizedTest(name = "{1}")
+    @ParameterizedTest(name = "{2} ({0})")
     @MethodSource("debugTestsFactory")
     @DisplayName("insert tests using debug")
-    fun testsWithDebug(keys: Array<Int>, treeInString: String) {
+    fun testsWithDebug(keys: Array<Int>, treeInString: String, name: String) {
         val tree = generateTreeWithInsert(*keys.toIntArray())
         Assertions.assertEquals(treeInString, tree.Debug().treeKeysInString())
     }
 
-    @ParameterizedTest(name = "{2}")
+    @ParameterizedTest(name = "{3} ({0}, {1})")
     @MethodSource("debugRemoveTestsFactory")
     @DisplayName("remove tests using debug")
-    fun removeTestsWithDebug(keys: Array<Int>, remove: Int, treeInString: String) {
+    fun removeTestsWithDebug(keys: Array<Int>, remove: Int, treeInString: String, name: String) {
         val tree = generateTreeWithInsert(*keys.toIntArray())
         tree.remove(remove)
         Assertions.assertEquals(treeInString, tree.Debug().treeKeysInString())
     }
 
     @Nested
-    inner class `constructors test` {
+    @DisplayName("constructors test")
+    inner class ConstructorsTest {
         @Test
         fun `insert key, value`() {
             val tree = AVLTree(4, "4k")
@@ -138,16 +138,16 @@ class AVLTreeTest {
 
     @Test
     fun `my struct`() {
-        class my(
+        class My (
             val arg1: String
-        ) : Comparable<my> {
-            override fun compareTo(other: my): Int = arg1.compareTo(other.arg1)
+        ) : Comparable<My> {
+            override fun compareTo(other: My): Int = arg1.compareTo(other.arg1)
         }
 
-        val tree = AVLTree(Pair(my("11"), 1), Pair(my("111"), 111), Pair(my("321"), 321))
-        tree.remove(my("321"))
-        Assertions.assertAll({ Assertions.assertEquals(1, tree.get(my("11"))) },
-            { Assertions.assertEquals(111, tree.get(my("111"))) },
-            { Assertions.assertNull(tree.get(my("321"))) })
+        val tree = AVLTree(Pair(My("11"), 1), Pair(My("111"), 111), Pair(My("321"), 321))
+        tree.remove(My("321"))
+        Assertions.assertAll({ Assertions.assertEquals(1, tree.get(My("11"))) },
+            { Assertions.assertEquals(111, tree.get(My("111"))) },
+            { Assertions.assertNull(tree.get(My("321"))) })
     }
 }
