@@ -2,7 +2,6 @@ import java.util.LinkedList
 import java.util.Queue
 import kotlin.math.abs
 
-
 abstract class BinTree<Key : Comparable<Key>, Value> {
     protected open class BinNode<Key : Comparable<Key>, Value>(
         var key: Key,
@@ -28,11 +27,13 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     constructor(key: Key, value: Value) {
         insert(key, value)
     }
-    constructor(array: Array<out Pair<Key, Value>>) {
-        sortInsert(array)
+
+    constructor(array: Array<out Pair<Key, Value>>, sort: Boolean = false) {
+        if (sort) sortInsert(*array)
+        else insert(*array)
     }
 
-    private fun sortInsert(array: Array<out Pair<Key, Value>>) {
+    fun sortInsert(vararg array: Pair<Key, Value>) {
         val serArray = array.sortedBy { it.first }.toTypedArray()
         var indices = serArray.indices.toList()
         indices = indices.sortedBy { abs(serArray.size / 2 - it) }
@@ -44,14 +45,13 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     abstract fun insert(key: Key, value: Value)
 
     fun insert(vararg array: Pair<Key, Value>) {
-        sortInsert(array)
+        for (i in array) insert(i.first, i.second)
     }
 
     abstract fun remove(key: Key)
 
     fun remove(vararg array: Key) {
-        for (i in array)
-            remove(i)
+        for (i in array) remove(i)
     }
 
     //return the inserted node if the node with the same key wasn't in the tree and null in otherwise
@@ -63,18 +63,16 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         } else {
             val parent = getParent(node.key)
             if (parent != null) {
-                if (parent < node.key)
-                    if (parent.right == null) {
-                        node.parent = parent
-                        parent.right = node
-                        return node
-                    } else parent.right?.value = node.value ?: error("unexpected null")
-                else
-                    if (parent.left == null) {
-                        node.parent = parent
-                        parent.left = node
-                        return node
-                    } else (parent.left)?.value = node.value ?: error("unexpected null")
+                if (parent < node.key) if (parent.right == null) {
+                    node.parent = parent
+                    parent.right = node
+                    return node
+                } else parent.right?.value = node.value ?: error("unexpected null")
+                else if (parent.left == null) {
+                    node.parent = parent
+                    parent.left = node
+                    return node
+                } else (parent.left)?.value = node.value ?: error("unexpected null")
             } else rootNode?.value = node.value ?: error("unexpected null")
         }
         return null
@@ -83,16 +81,11 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     protected fun removeService(node: BinNode<Key, Value>) {
         if ((node.left == null) && (node.right == null)) {
             val parent: BinNode<Key, Value>? = node.parent
-            if (parent == null)
-                rootNode = null
-            else if (node == parent.left)
-                parent.left = null
-            else
-                parent.right = null
-        } else if (node.left == null)
-            replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
-        else if (node.right == null)
-            replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
+            if (parent == null) rootNode = null
+            else if (node == parent.left) parent.left = null
+            else parent.right = null
+        } else if (node.left == null) replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
+        else if (node.right == null) replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
         else {
             val nextNode = nextElement(node) ?: error("remove error: unexpected null")
             val parent = nextNode.parent ?: error("remove error: unexpected null")
@@ -110,35 +103,26 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
 
     protected fun getParent(key: Key): BinNode<Key, Value>? {
         tailrec fun recFind(curNode: BinNode<Key, Value>?): BinNode<Key, Value>? {
-            return if (curNode == null)
-                null
+            return if (curNode == null) null
             else if (curNode > key) {
-                if (curNode.left?.equalKey(key) != false)
-                    curNode
-                else
-                    recFind(curNode.left)
+                if (curNode.left?.equalKey(key) != false) curNode
+                else recFind(curNode.left)
             } else if (curNode.equalKey(key)) {
                 return curNode.parent
             } else {
-                if (curNode.right?.equalKey(key) != false)
-                    curNode
-                else
-                    recFind(curNode.right)
+                if (curNode.right?.equalKey(key) != false) curNode
+                else recFind(curNode.right)
             }
         }
         return recFind(rootNode)
     }
 
     protected fun getNode(key: Key): BinNode<Key, Value>? {
-        if (rootNode?.equalKey(key) == true)
-            return rootNode
+        if (rootNode?.equalKey(key) == true) return rootNode
         val parent = getParent(key)
-        return if (parent == null)
-            null
-        else if (parent.left?.equalKey(key) == true)
-            parent.left
-        else if (parent.right?.equalKey(key) == true)
-            parent.right
+        return if (parent == null) null
+        else if (parent.left?.equalKey(key) == true) parent.left
+        else if (parent.right?.equalKey(key) == true) parent.right
         else null
     }
 
@@ -173,23 +157,20 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
 
     protected open fun replaceNodeParent(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>?) {
         val parent: BinNode<Key, Value>? = oldNode.parent
-        if (parent == null)
-            rootNode = newNode
+        if (parent == null) rootNode = newNode
         else if (oldNode == parent.left) {
             parent.left = newNode
         } else {
             parent.right = newNode
         }
-        newNode?.let { it.parent = parent}
+        newNode?.let { it.parent = parent }
     }
 
-    protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
+    protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean = false) {
         val queue: Queue<BinNode<Key, Value>?> = LinkedList(listOf(rootNode))
 
         fun notNullInQueue(): Boolean {
-            for (i in queue)
-                if (i != null)
-                    return true
+            for (i in queue) if (i != null) return true
             return false
         }
 
@@ -203,8 +184,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
                 queue.add(null)
                 queue.add(null)
             }
-            if (!notNullInQueue())
-                return
+            if (!notNullInQueue()) return
         }
     }
 
