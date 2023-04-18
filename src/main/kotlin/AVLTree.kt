@@ -13,15 +13,20 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
     override fun insert(key: Key, value: Value) {
+        //if the tree is too big, we can't insert something
         rootNode?.let { if ((rootNode as AVLNode<Key, Value>).height == 255.toUByte()) return }
+
         val node = insertService(AVLNode(key, value)) as AVLNode<Key, Value>?
         balancing(node ?: return)
     }
 
     override fun remove(key: Key) {
         val removeNode = getNode(key) ?: return
+
+        //special case when the node has two children
         if ((removeNode.right != null) && (removeNode.left != null)) {
             val node = nextElement(removeNode) as AVLNode<Key, Value>
+
             if (node.parent == removeNode) {
                 removeService(removeNode)
                 balancing(node)
@@ -30,17 +35,23 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
                 removeService(removeNode)
                 balancing(nextNodeParent)
             }
-        } else {
+        }
+
+        //when the node has zero or one child, just remove it and balance the tree
+        else {
             removeService(removeNode)
             if (rootNode != null) balancing(removeNode.parent as AVLNode<Key, Value>)
         }
 
     }
 
+    //use tail recursion to balance after removing and inserting a node
     private tailrec fun balancing(node: AVLNode<Key, Value>): AVLNode<Key, Value> {
         var currentNode = node
         updateHeight(currentNode)
 
+        //if the balancing factor by module is greater than one,
+        //it is necessary to do the balancing
         if (balanceFactor(currentNode) >= 2) {
             if (balanceFactor(currentNode.right as AVLNode<Key, Value>) >= 0) {
                 currentNode = rotation(currentNode, RotationType.LEFT) as AVLNode<Key, Value>

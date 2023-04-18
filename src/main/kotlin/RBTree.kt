@@ -38,10 +38,14 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
         //delete node without child
         if ((removeNode.left == null) && (removeNode.right == null)) {
             val parent: BinNode<Key, Value>? = removeNode.parent
+
             if (parent == null) rootNode = null
+
+            //when the color of the node is red, just delete it
             else if (removeNode.color == RED) replaceNodeParent(removeNode, null)
 
-            //special case for black node without child
+            //when the color of the node without children is black,
+            //the tree needs to be balanced
             else {
                 balancingRemove(removeNode)
                 replaceNodeParent(removeNode, null)
@@ -77,11 +81,15 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
 
     private fun balancingInsert(node: RBNode<Key, Value>) {
         val parent = getParent(node.key) as RBNode?
+
+        //root color should always be black
         if (parent == null) (rootNode as RBNode?)?.color = BLACK
+
         else if (parent.color == BLACK) return
         else {
             val uncle = getUncle(node)
             val grandparent = getGrandparent(node) ?: error("balancing error")
+
             if (uncle?.color == RED) {
                 parent.swapColor()
                 uncle.swapColor()
@@ -116,7 +124,8 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
                     rotation(node.parent, RotationType.LEFT)
                     brother = (node.parent as RBNode<Key, Value>?)?.right as RBNode<Key, Value>?
                 }
-                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) &&
+                    ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
@@ -141,7 +150,8 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
                     rotation(node.parent, RotationType.RIGHT)
                     brother = (node.parent as RBNode<Key, Value>?)?.left as RBNode<Key, Value>?
                 }
-                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) &&
+                    ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
