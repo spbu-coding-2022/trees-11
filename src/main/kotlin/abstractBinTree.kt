@@ -1,3 +1,5 @@
+import java.util.LinkedList
+import java.util.Queue
 import kotlin.math.abs
 
 
@@ -182,7 +184,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     }
 
     protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
-        val queue = mutableListOf(rootNode)
+        val queue: Queue<BinNode<Key, Value>?> = LinkedList(listOf(rootNode))
 
         fun notNullInQueue(): Boolean {
             for (i in queue)
@@ -192,15 +194,14 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
 
         while (queue.isNotEmpty()) {
-            val node = queue.last()
-            queue.removeLast()
+            val node = queue.remove()
             function(node)
             if (node != null) {
-                queue.add(0, node.left)
-                queue.add(0, node.right)
+                queue.add(node.left)
+                queue.add(node.right)
             } else if (addNullNodes) {
-                queue.add(0, null)
-                queue.add(0, null)
+                queue.add(null)
+                queue.add(null)
             }
             if (!notNullInQueue())
                 return
