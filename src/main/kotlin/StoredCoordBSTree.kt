@@ -13,12 +13,12 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
         private val driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
         private val session = driver.session()
 
-        fun addTree() {
+        fun saveTree() {
             cleanDB()
-            breadthFirstSearch({ node -> addNode(node) })
+            breadthFirstSearch({ node -> saveNode(node) })
         }
 
-        private fun addNode(node: BinNode<String, Pair<String, Pair<Double, Double>>>?) {
+        private fun saveNode(node: BinNode<String, Pair<String, Pair<Double, Double>>>?) {
             if (node == null) return
             session.executeWrite { tx ->
                 tx.run(
