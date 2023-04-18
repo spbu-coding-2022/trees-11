@@ -1,8 +1,9 @@
 import kotlin.math.abs
 
+
 abstract class BinTree<Key : Comparable<Key>, Value> {
     protected open class BinNode<Key : Comparable<Key>, Value>(
-        val key: Key,
+        var key: Key,
         var value: Value,
         var parent: BinNode<Key, Value>? = null,
         var left: BinNode<Key, Value>? = null,
@@ -77,6 +78,34 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         return null
     }
 
+    protected fun removeService(node: BinNode<Key, Value>) {
+        if ((node.left == null) && (node.right == null)) {
+            val parent: BinNode<Key, Value>? = node.parent
+            if (parent == null)
+                rootNode = null
+            else if (node == parent.left)
+                parent.left = null
+            else
+                parent.right = null
+        } else if (node.left == null)
+            replaceNodeParent(node, node.right ?: error("remove error: unexpected null"))
+        else if (node.right == null)
+            replaceNodeParent(node, node.left ?: error("remove error: unexpected null"))
+        else {
+            val nextNode = nextElement(node) ?: error("remove error: unexpected null")
+            val parent = nextNode.parent ?: error("remove error: unexpected null")
+            if (parent != node) {
+                if (nextNode.right != null) replaceNodeParent(nextNode, nextNode.right)
+                else parent.left = null
+                nextNode.right = node.right
+                nextNode.right?.parent = nextNode
+            }
+            nextNode.left = node.left
+            nextNode.left?.parent = nextNode
+            replaceNodeParent(node, nextNode)
+        }
+    }
+
     protected fun getParent(key: Key): BinNode<Key, Value>? {
         tailrec fun recFind(curNode: BinNode<Key, Value>?): BinNode<Key, Value>? {
             return if (curNode == null)
@@ -116,7 +145,40 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
     }
 
     fun get(vararg keys: Key): List<Value?> {
-        return List(keys.size, {get(keys[it])})
+        return List(keys.size) { get(keys[it]) }
+    }
+
+    protected open fun nextElement(node: BinNode<Key, Value>): BinNode<Key, Value>? {
+        val nodeRight: BinNode<Key, Value> = node.right ?: return null
+        return minElement(nodeRight.key)
+    }
+
+    protected fun minElement(key: Key): BinNode<Key, Value>? {
+        var minNode: BinNode<Key, Value>? = getNode(key) ?: return null
+        while (minNode?.left != null) {
+            minNode = minNode.left ?: error("min element not found: unexpected null")
+        }
+        return minNode
+    }
+
+    protected fun maxElement(key: Key): BinNode<Key, Value>? {
+        var maxNode: BinNode<Key, Value>? = getNode(key) ?: return null
+        while (maxNode?.right != null) {
+            maxNode = maxNode.right ?: error("max element not found: unexpected null")
+        }
+        return maxNode
+    }
+
+    protected open fun replaceNodeParent(oldNode: BinNode<Key, Value>, newNode: BinNode<Key, Value>?) {
+        val parent: BinNode<Key, Value>? = oldNode.parent
+        if (parent == null)
+            rootNode = newNode
+        else if (oldNode == parent.left) {
+            parent.left = newNode
+        } else {
+            parent.right = newNode
+        }
+        newNode?.let { it.parent = parent}
     }
 
     protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean) {
