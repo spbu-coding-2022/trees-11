@@ -10,9 +10,8 @@ import java.util.stream.Stream
 import kotlin.random.Random
 import kotlin.test.assertContains
 
-@Disabled
 class AVLTreeTest {
-    fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
+    fun generateTreeWithInsert(vararg arr: Int): AVLTree<Int, String> {
         val tree = AVLTree<Int, String>()
         for (i in arr) tree.insert(i, "${i}k")
         return tree
@@ -54,23 +53,23 @@ class AVLTreeTest {
                 Arguments.of(arrayOf(4, 2, 1), "2 \n1 4 \n", "right rotation"),
                 Arguments.of(arrayOf(2, 5, 4, 3, 1, 0), "2 \n1 4 \n0 - 3 5 \n", "difficult right rotation 1"),
                 Arguments.of(arrayOf(2, 5, 4, 3, 0, 1), "2 \n0 4 \n- 1 3 5 \n", "difficult right rotation 2"),
-                Arguments.of(arrayOf(2, 1, 4, 3, 5, 6), "4 \n2 5\n1 3 - 6 \n", "difficult left rotation 1"),
-                Arguments.of(arrayOf(2, 1, 4, 3, 6, 5), "4 \n2 6\n1 3 5 - \n", "difficult left rotation 2"),
+                Arguments.of(arrayOf(2, 1, 4, 3, 5, 6), "4 \n2 5 \n1 3 - 6 \n", "difficult left rotation 1"),
+                Arguments.of(arrayOf(2, 1, 4, 3, 6, 5), "4 \n2 6 \n1 3 5 ", "difficult left rotation 2"),
                 Arguments.of(arrayOf(1, 3, 2), "2 \n1 3 \n", "right left rotation"),
                 Arguments.of(arrayOf(3, 1, 2), "2 \n1 3 \n", "left right rotation"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), "6 \n4 8\n2 5 7 - \n1 3 ", "combine"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), "6 \n4 8 \n2 5 7 - \n1 3 ", "combine"),
             )
         }
 
         @JvmStatic
         fun debugRemoveTestsFactory(): Stream<Arguments> {
             return Stream.of(
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 1, "6 \n4 8\n2 5 7 - \n- 3 ", "remove right leaf"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 3, "6 \n4 8\n2 5 7 - \n1 ", "remove left leaf"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 2, "6 \n4 8\n1 5 7 - \n- 3 ", "remove root of two leafs"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 8, "4 \n2 6\n1 3 5 7 \n", "remove with rebalancing"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 6, "5 \n2 8\n1 4 7 - \n- - 3 ", "remove root"),
-                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 4, "6 \n3 8\n2 5 7 - \n1 ", "one more remove"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 1, "6 \n4 8 \n2 5 7 - \n- 3 ", "remove right leaf"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 3, "6 \n4 8 \n2 5 7 - \n1 ", "remove left leaf"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 2, "6 \n4 8 \n3 5 7 - \n1 ", "remove root of two leafs"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 8, "4 \n2 6 \n1 3 5 7 \n", "remove with rebalancing"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 6, "4 \n2 7 \n1 3 5 8 \n", "remove root"),
+                Arguments.of(arrayOf(4, 3, 6, 5, 8, 7, 1, 2), 4, "6 \n2 8 \n1 5 7 - \n- - 3 ", "one more remove"),
             )
         }
     }
@@ -97,7 +96,7 @@ class AVLTreeTest {
         )
     }
 
-    @ParameterizedTest(name = "{2}")
+    @ParameterizedTest(name = "{1}")
     @MethodSource("debugTestsFactory")
     @DisplayName("insert tests using debug")
     fun testsWithDebug(keys: Array<Int>, treeInString: String) {
