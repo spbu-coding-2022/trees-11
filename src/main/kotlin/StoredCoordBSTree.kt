@@ -12,17 +12,22 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
     inner class neo4j(uri: String, user: String, password: String) : Closeable {
         private val driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
         private val session = driver.session()
+        val treeName = "Tree"
 
         fun saveTree() {
             cleanDB()
-            breadthFirstSearch({ node -> saveNode(node) })
+            session.run("CREATE (:$treeName)")
+            session.run("CREATE (:gljlkj)")
+            var prevKey: String? = null
+            breadthFirstSearch({ node -> saveNode(node, prevKey); prevKey = node?.key ?: prevKey })
         }
 
-        private fun saveNode(node: BinNode<String, Pair<String, Pair<Double, Double>>>?) {
+        private fun saveNode(node: BinNode<String, Pair<String, Pair<Double, Double>>>?, prevKey: String?) {
             if (node == null) return
             session.executeWrite { tx ->
                 tx.run(
-                    "CREATE (:Node{key:\$key, value:\$value, x:\$x, y:\$y}) ", mutableMapOf(
+                    "OPTIONAL MATCH (prevNode:${if (prevKey == null) treeName else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
+                            "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})", mutableMapOf(
                         "key" to node.key,
                         "value" to node.value.first,
                         "x" to node.value.second.first,
@@ -35,7 +40,8 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
         fun readTree() {
             session.executeRead { tx ->
                 val result = tx.run(
-                    "MATCH (node: Node) " + "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY node.id"
+                    "OPTIONAL MATCH ($treeName)-[n:next*]->(node)" +
+                            "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
                 )
                 result.stream().forEach {
                     try {
@@ -51,7 +57,7 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
         }
 
         fun cleanDB() {
-            session.run("MATCH (n) DETACH DELETE n")
+            session.run("MATCH ($treeName)-[:next*]->(node) DETACH DELETE node, $treeName")
         }
 
         override fun close() {
