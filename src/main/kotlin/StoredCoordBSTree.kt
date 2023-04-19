@@ -1,7 +1,5 @@
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.GraphDatabase
+import org.neo4j.driver.Session
 import org.neo4j.driver.exceptions.value.Uncoercible
-import java.io.Closeable
 import java.io.IOException
 
 class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
@@ -9,15 +7,10 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
     constructor(key: String, value: Pair<String, Pair<Double, Double>>) : super(key, value)
     constructor(vararg pairs: Pair<String, Pair<String, Pair<Double, Double>>>) : super(*pairs)
 
-    inner class neo4j(uri: String, user: String, password: String) : Closeable {
-        private val driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
-        private val session = driver.session()
-        val treeName = "Tree"
-
+    inner class neo4j(val session: Session, val treeName: String) {
         fun saveTree() {
-            cleanDB()
+            removeTreeFromDB()
             session.run("CREATE (:$treeName)")
-            session.run("CREATE (:gljlkj)")
             var prevKey: String? = null
             breadthFirstSearch({ node -> saveNode(node, prevKey); prevKey = node?.key ?: prevKey })
         }
@@ -56,13 +49,8 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             }
         }
 
-        fun cleanDB() {
-            session.run("MATCH ($treeName)-[:next*]->(node) DETACH DELETE node, $treeName")
-        }
-
-        override fun close() {
-            session.close()
-            driver.close()
+        fun removeTreeFromDB() {
+            session.run("OPTIONAL MATCH (tree:$treeName)-[:next*]->(node) DETACH DELETE node, tree")
         }
     }
 }
