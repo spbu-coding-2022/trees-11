@@ -1,12 +1,11 @@
-class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
+import abstractTree.BalanceTree
+
+open class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class AVLNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
-        parent: AVLNode<Key, Value>? = null,
-        left: AVLNode<Key, Value>? = null,
-        right: AVLNode<Key, Value>? = null,
         var height: UByte = 0U
-    ) : BinNode<Key, Value>(key, value, parent, left, right)
+    ) : BinNode<Key, Value>(key, value)
 
     constructor() : super()
     constructor(key: Key, value: Value) : super(key, value)
@@ -40,7 +39,7 @@ class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
         //when the node has zero or one child, just remove it and balance the tree
         else {
             removeService(removeNode)
-            if (rootNode != null) balancing(removeNode.parent as AVLNode<Key, Value>)
+            if (removeNode.parent != null) balancing(removeNode.parent as AVLNode<Key, Value>)
         }
 
     }

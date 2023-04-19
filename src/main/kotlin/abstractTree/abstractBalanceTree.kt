@@ -1,3 +1,5 @@
+package abstractTree
+
 abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor() : super()
     constructor(key: Key, value: Value) : super(key, value)
@@ -8,8 +10,7 @@ abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     protected fun rotation(parent: BinNode<Key, Value>?, type: RotationType): BinNode<Key, Value>? {
         //giving the parentNode
         parent?.let {
-            val node = if (type == RotationType.LEFT)
-                it.right ?: error("rotation is not possible")
+            val node = if (type == RotationType.LEFT) it.right ?: error("rotation is not possible")
             else it.left ?: error("rotation is not possible")
 
             when (type) {
