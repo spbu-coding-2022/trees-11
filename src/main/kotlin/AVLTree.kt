@@ -1,4 +1,6 @@
-class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
+import abstractTree.BalanceTree
+
+open class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class AVLNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
