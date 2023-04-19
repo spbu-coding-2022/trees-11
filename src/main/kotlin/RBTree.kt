@@ -1,11 +1,11 @@
+import abstractTree.BalanceTree
+
 const val RED = false
 const val BLACK = true
 
-class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
+open class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class RBNode<Key : Comparable<Key>, Value>(
-        key: Key,
-        value: Value,
-        var color: Boolean = RED
+        key: Key, value: Value, var color: Boolean = RED
     ) : BinNode<Key, Value>(key, value) {
         fun swapColor() {
             color = !color
@@ -81,7 +81,6 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
 
         //root color should always be black
         if (parent == null) (rootNode as RBNode?)?.color = BLACK
-
         else if (parent.color == BLACK) return
         else {
             val uncle = getUncle(node)
@@ -121,8 +120,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
                     rotation(node.parent, RotationType.LEFT)
                     brother = (node.parent as RBNode<Key, Value>?)?.right as RBNode<Key, Value>?
                 }
-                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) &&
-                    ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
@@ -147,8 +145,7 @@ class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
                     rotation(node.parent, RotationType.RIGHT)
                     brother = (node.parent as RBNode<Key, Value>?)?.left as RBNode<Key, Value>?
                 }
-                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) &&
-                    ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
+                if (((brother?.left == null) || (brother.left as RBNode<Key, Value>?)?.color == BLACK) && ((brother?.right == null) || (brother.right as RBNode<Key, Value>?)?.color == BLACK)) {
                     brother?.color = RED
                     node = node.parent as RBNode<Key, Value>
                 } else {
