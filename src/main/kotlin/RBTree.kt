@@ -1,15 +1,14 @@
+import abstractTree.BalanceTree
+
 const val RED = false
 const val BLACK = true
 
-class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
+open class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     protected class RBNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
-        parent: RBNode<Key, Value>? = null,
-        left: RBNode<Key, Value>? = null,
-        right: RBNode<Key, Value>? = null,
         var color: Boolean = RED
-    ) : BinNode<Key, Value>(key, value, parent, left, right) {
+    ) : BinNode<Key, Value>(key, value) {
         fun swapColor() {
             color = !color
         }

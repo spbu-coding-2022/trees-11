@@ -18,7 +18,7 @@ fun keysToValues(vararg arr: Int, remove: Int? = null, chValue: Pair<Int, String
 }
 
 class BSTreeTest {
-    fun generateTreeWithInsert(vararg arr: Int): BinTree<Int, String> {
+    fun generateTreeWithInsert(vararg arr: Int): BSTree<Int, String> {
         val tree = BSTree<Int, String>()
         for (i in arr) tree.insert(i, "${i}k")
         return tree
