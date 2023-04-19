@@ -39,7 +39,7 @@ open class AVLTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
         //when the node has zero or one child, just remove it and balance the tree
         else {
             removeService(removeNode)
-            if (rootNode != null) balancing(removeNode.parent as AVLNode<Key, Value>)
+            if (removeNode.parent != null) balancing(removeNode.parent as AVLNode<Key, Value>)
         }
 
     }
