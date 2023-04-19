@@ -15,6 +15,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     implementation("org.neo4j.driver:neo4j-java-driver:5.7.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
 }
 
 tasks.test {
