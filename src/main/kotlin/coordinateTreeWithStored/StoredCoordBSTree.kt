@@ -1,4 +1,4 @@
-package CoordinateTreeWithStored
+package coordinateTreeWithStored
 
 import BSTree
 import org.neo4j.driver.Session
@@ -18,7 +18,7 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             breadthFirstSearch({ node -> saveNode(node, prevKey); prevKey = node?.key ?: prevKey })
         }
 
-        private fun saveNode(node: BinTree.BinNode<String, Pair<String, Pair<Double, Double>>>?, prevKey: String?) {
+        private fun saveNode(node: BinNode<String, Pair<String, Pair<Double, Double>>>?, prevKey: String?) {
             if (node == null) return
             session.executeWrite { tx ->
                 tx.run(
