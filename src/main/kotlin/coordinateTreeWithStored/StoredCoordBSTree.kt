@@ -12,7 +12,7 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
     constructor(vararg pairs: Pair<String, Pair<String, Pair<Double, Double>>>) : super(*pairs)
 
     inner class Neo4j(private val session: Session, private val treeName: String) : DataBase {
-        override fun saveTree() {
+        override fun writeTree() {
             removeTree()
             session.run("CREATE (:$treeName)")
             var prevKey: String? = null

@@ -1,7 +1,7 @@
 package interfaces
 
 interface DataBase {
-    fun saveTree()
+    fun writeTree()
     fun readTree()
     fun removeTree()
 }
