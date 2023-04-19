@@ -23,7 +23,8 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             if (node == null) return
             session.executeWrite { tx ->
                 tx.run(
-                    "OPTIONAL MATCH (prevNode:${if (prevKey == null) treeName else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " + "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
+                    "OPTIONAL MATCH (prevNode:${if (prevKey == null) treeName else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
+                            "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
                     mutableMapOf(
                         "key" to node.key,
                         "value" to node.value.first,
