@@ -1,8 +1,9 @@
+import interfaces.Tree
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.math.abs
 
-abstract class BinTree<Key : Comparable<Key>, Value> {
+abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
     protected open class BinNode<Key : Comparable<Key>, Value>(
         var key: Key,
         var value: Value,
@@ -42,16 +43,12 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         }
     }
 
-    abstract fun insert(key: Key, value: Value)
-
-    fun insert(vararg array: Pair<Key, Value>) {
+    override fun insert(vararg array: Pair<Key, Value>) {
         for (i in array) insert(i.first, i.second)
     }
 
-    abstract fun remove(key: Key)
-
-    fun remove(vararg array: Key) {
-        for (i in array) remove(i)
+    override fun remove(vararg keys: Key) {
+        for (i in keys) remove(i)
     }
 
     //return the inserted node if the node with the same key wasn't in the tree and null in otherwise
@@ -126,11 +123,11 @@ abstract class BinTree<Key : Comparable<Key>, Value> {
         else null
     }
 
-    open fun get(key: Key): Value? {
+    override fun get(key: Key): Value? {
         return getNode(key)?.value
     }
 
-    fun get(vararg keys: Key): List<Value?> {
+    override fun get(vararg keys: Key): List<Value?> {
         return List(keys.size) { get(keys[it]) }
     }
 

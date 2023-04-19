@@ -1,6 +1,7 @@
 package coordinateTreeWithStored
 
 import BSTree
+import interfaces.DataBase
 import org.neo4j.driver.Session
 import org.neo4j.driver.exceptions.value.Uncoercible
 import java.io.IOException
@@ -10,9 +11,9 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
     constructor(key: String, value: Pair<String, Pair<Double, Double>>) : super(key, value)
     constructor(vararg pairs: Pair<String, Pair<String, Pair<Double, Double>>>) : super(*pairs)
 
-    inner class neo4j(val session: Session, val treeName: String) {
-        fun saveTree() {
-            removeTreeFromDB()
+    inner class Neo4j(private val session: Session, private val treeName: String) : DataBase {
+        override fun saveTree() {
+            removeTree()
             session.run("CREATE (:$treeName)")
             var prevKey: String? = null
             breadthFirstSearch({ node -> saveNode(node, prevKey); prevKey = node?.key ?: prevKey })
@@ -22,8 +23,8 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             if (node == null) return
             session.executeWrite { tx ->
                 tx.run(
-                    "OPTIONAL MATCH (prevNode:${if (prevKey == null) treeName else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
-                            "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})", mutableMapOf(
+                    "OPTIONAL MATCH (prevNode:${if (prevKey == null) treeName else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " + "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
+                    mutableMapOf(
                         "key" to node.key,
                         "value" to node.value.first,
                         "x" to node.value.second.first,
@@ -33,11 +34,10 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             }
         }
 
-        fun readTree() {
+        override fun readTree() {
             session.executeRead { tx ->
                 val result = tx.run(
-                    "OPTIONAL MATCH ($treeName)-[n:next*]->(node)" +
-                            "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
+                    "OPTIONAL MATCH ($treeName)-[n:next*]->(node)" + "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
                 )
                 result.stream().forEach {
                     try {
@@ -52,7 +52,7 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
             }
         }
 
-        fun removeTreeFromDB() {
+        override fun removeTree() {
             session.run("OPTIONAL MATCH (tree:$treeName)-[:next*]->(node) DETACH DELETE node, tree")
         }
     }
