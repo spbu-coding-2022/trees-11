@@ -1,5 +1,3 @@
-import abstractTree.BinTree
-
 open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor() : super()
     constructor(key: Key, value: Value) : super(key, value)
