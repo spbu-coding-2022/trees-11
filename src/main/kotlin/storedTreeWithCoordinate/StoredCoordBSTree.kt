@@ -1,4 +1,4 @@
-package coordinateTreeWithStored
+package storedTreeWithCoordinate
 
 import BSTree
 import interfaces.DataBase
@@ -38,7 +38,7 @@ class StoredCoordBSTree : BSTree<String, Pair<String, Pair<Double, Double>>> {
         override fun readTree() {
             session.executeRead { tx ->
                 val result = tx.run(
-                    "OPTIONAL MATCH ($treeName)-[n:next*]->(node)" + "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
+                    "OPTIONAL MATCH (:$treeName)-[n:next*]->(node)" + "RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
                 )
                 result.stream().forEach {
                     try {
