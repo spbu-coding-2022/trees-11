@@ -1,4 +1,4 @@
-package coordinateTreeWithStored
+package storedTreeWithCoordinate
 
 import AVLTree
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -18,7 +18,6 @@ class StoredCoordAVLTree: AVLTree<String, Pair<String, Pair<Double, Double>>> {
         override fun writeTree() {
             removeTree()
             jsonFile.createNewFile()
-//            val nodeList = mutableListOf<Pair<String, Pair<String, Pair<Double, Double>>>>()
             val nodeList = mutableListOf<Pair<String, Pair<String, Pair<Double, Double>>>>()
             breadthFirstSearch({ node -> if (node != null) nodeList.add(Pair(node.key, node.value))})
             jsonFile.appendText(mapper.writeValueAsString(nodeList))

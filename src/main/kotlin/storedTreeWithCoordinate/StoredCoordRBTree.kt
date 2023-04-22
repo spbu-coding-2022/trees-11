@@ -1,4 +1,4 @@
-package coordinateTreeWithStored
+package storedTreeWithCoordinate
 
 import RBTree
 import abstractTree.BinTree
@@ -16,7 +16,7 @@ class StoredCoordRBTree: RBTree<String, Pair<String, Pair<Double, Double>>> {
         private val connection = DriverManager.getConnection("$DB_DRIVER:$dbPath")
             ?: throw SQLException("Cannot connect to database")
         private val addNodeStatement by lazy { connection.prepareStatement("INSERT INTO nodes (key, value, x, y) VALUES (?, ?, ?, ?);") }
-        private val getAllNodesStatement by lazy { connection.prepareStatement("SELECT node.key as key, node.value as value, node.x as x, node.y as y FROM nodes;") }
+        private val getAllNodesStatement by lazy { connection.prepareStatement("SELECT nodes.key as key, nodes.value as value, nodes.x as x, nodes.y as y FROM nodes;") }
 
         fun createDb() {
             connection.createStatement()
