@@ -3,7 +3,7 @@ package storedTreeWithCoordinate
 import AVLTree
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import interfaces.DataBase
+import dataBase.DataBase
 import java.io.File
 
 class StoredCoordAVLTree: AVLTree<String, Pair<String, Pair<Double, Double>>> {

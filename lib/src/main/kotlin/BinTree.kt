@@ -1,6 +1,3 @@
-package abstractTree
-
-import interfaces.Tree
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.math.abs
@@ -12,7 +9,6 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         var parent: BinNode<Key, Value>? = null,
         var left: BinNode<Key, Value>? = null,
         var right: BinNode<Key, Value>? = null
-
     ) : Comparable<Key> {
         override fun compareTo(other: Key): Int {
             return key.compareTo(other)

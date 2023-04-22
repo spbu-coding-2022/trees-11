@@ -1,9 +1,9 @@
-import abstractTree.BalanceTree
-
-const val RED = false
-const val BLACK = true
-
 open class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
+    companion object {
+        const val RED = false
+        const val BLACK = true
+    }
+
     protected class RBNode<Key : Comparable<Key>, Value>(
         key: Key,
         value: Value,
