@@ -1,9 +1,11 @@
+package trees
+
 open class BSTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor() : super()
     constructor(key: Key, value: Value) : super(key, value)
     constructor(vararg pairs: Pair<Key, Value>) : super(pairs)
 
-    open override fun insert(key: Key, value: Value) {
+    override fun insert(key: Key, value: Value) {
         insertService(BinNode(key, value))
     }
 

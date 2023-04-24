@@ -1,3 +1,5 @@
+package trees
+
 interface Tree<Key, Value> {
     fun insert(key: Key, value: Value)
     fun insert(vararg array: Pair<Key, Value>)
