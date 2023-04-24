@@ -1,3 +1,5 @@
+package trees
+
 open class RBTree<Key : Comparable<Key>, Value> : BalanceTree<Key, Value> {
     companion object {
         const val RED = false

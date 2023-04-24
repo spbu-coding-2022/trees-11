@@ -1,6 +1,6 @@
 package dataBase
 
-import BinTree
+import trees.BinTree
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.Driver
 import org.neo4j.driver.GraphDatabase
@@ -25,7 +25,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         if (isSupportTreeType(treeName)) throw IllegalArgumentException("Unsupported tree type")
         if (treeName.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
         removeTree(treeName)
-        session.run("CREATE (:Tree {name: \$$treeName}, type: \$$treeType)")
+        session.run("CREATE (:trees.Tree {name: \$$treeName}, type: \$$treeType)")
         var prevKey: String? = null
         tree.getKeyValueList().forEach { saveNode(it.first, it.second.first, it.second.second, prevKey, treeName); prevKey = it.first }
     }
@@ -33,7 +33,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     private fun saveNode(key: String, value: String, coordinate: Pair<Double, Double>, prevKey: String?, treeName: String) {
         session.executeWrite { tx ->
             tx.run(
-                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "Tree WHERE prevNode.name = $treeName" else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
+                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "trees.Tree WHERE prevNode.name = $treeName" else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
                         "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
                 mutableMapOf(
                     "key" to key,
@@ -48,14 +48,14 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
         var type = ""
         session.executeRead { tx ->
-            type = tx.run("OPTIONAL MATCH (tree:Tree WHERE tree.name = $treeName) RETURN tree.type").toString()
+            type = tx.run("OPTIONAL MATCH (tree:trees.Tree WHERE tree.name = $treeName) RETURN tree.type").toString()
         }
 
-        val tree = typeToTree(type.toString())
+        val tree = typeToTree(type)
 
         session.executeRead { tx ->
             val result = tx.run(
-                "OPTIONAL MATCH (tree:Tree WHERE tree.name = $treeName)-[n:next*]->(node) RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
+                "OPTIONAL MATCH (tree:trees.Tree WHERE tree.name = $treeName)-[n:next*]->(node) RETURN node.key AS key, node.value AS value, node.x AS x, node.y AS y ORDER BY n"
             )
 
             result.stream().forEach {
@@ -74,13 +74,13 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     }
 
     override fun removeTree(treeName: String) {
-        session.run("OPTIONAL MATCH (tree: Tree WHERE tree.name = $treeName)-[:next*]->(node) DETACH DELETE node, tree")
+        session.run("OPTIONAL MATCH (tree: trees.Tree WHERE tree.name = $treeName)-[:next*]->(node) DETACH DELETE node, tree")
     }
 
     override fun getAllTree(): List<Pair<String, String>> {
         val list = mutableListOf<Pair<String, String>>()
         session.executeRead { tx ->
-            val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type")
+            val result = tx.run("OPTIONAL MATCH (tree: trees.Tree) RETURN tree.name AS name, tree.type AS type")
             result.stream().forEach {
                 list.add(Pair(it["name"].asString(), it["type"].asString()))
             }

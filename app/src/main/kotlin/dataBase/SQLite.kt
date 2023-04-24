@@ -1,6 +1,6 @@
 package dataBase
 
-import BinTree
+import trees.BinTree
 import java.io.IOException
 import java.sql.DriverManager
 import java.sql.SQLException

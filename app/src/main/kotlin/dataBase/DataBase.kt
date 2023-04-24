@@ -1,21 +1,18 @@
 package dataBase
 
-import AVLTree
-import BSTree
-import BinTree
-import RBTree
+import trees.*
 import java.sql.SQLException
 
 interface DataBase {
     fun isSupportTreeType(treeType: String): Boolean {
-        val supportTypes = arrayOf("BSTree", "RBTree", "AVLTree")
+        val supportTypes = arrayOf("trees.BSTree", "trees.RBTree", "trees.AVLTree")
         return (treeType in supportTypes)
     }
 
     fun typeToTree(type: String): BinTree<String, Pair<String, Pair<Double, Double>>> = when (type) {
-        "BSTree" -> BSTree()
-        "RBTree" -> RBTree()
-        "AVLTree" -> AVLTree()
+        "trees.BSTree" -> BSTree()
+        "trees.RBTree" -> RBTree()
+        "trees.AVLTree" -> AVLTree()
         else -> throw SQLException("invalid type of tree")
     }
     fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>, treeType: String)
