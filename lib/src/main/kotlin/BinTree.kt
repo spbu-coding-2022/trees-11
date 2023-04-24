@@ -161,7 +161,7 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         newNode?.let { it.parent = parent }
     }
 
-    protected fun breadthFirstSearch(function: (BinNode<Key, Value>?) -> Unit, addNullNodes: Boolean = false) {
+    protected fun breadthFirstSearch(addNullNodes: Boolean = false, function: (BinNode<Key, Value>?) -> Unit) {
         val queue: Queue<BinNode<Key, Value>?> = LinkedList(listOf(rootNode))
 
         fun notNullInQueue(): Boolean {
@@ -183,13 +183,19 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         }
     }
 
+    fun getKeyValueList(): List<Pair<Key, Value>> {
+        val list = mutableListOf<Pair<Key, Value>>()
+        breadthFirstSearch { node -> if (node != null) list.add(Pair(node.key, node.value)) }
+        return list
+    }
+
     internal open inner class Debug {
         fun treeKeysInString(): String {
             var sizeOfLevel = 1
             var elemInTheLevel = 0
             var string = ""
 
-            fun function(node: BinNode<Key, Value>?) {
+            breadthFirstSearch(true) { node ->
                 string += node?.key ?: "-"
                 string += " "
                 elemInTheLevel += 1
@@ -199,8 +205,6 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
                     string += "\n"
                 }
             }
-
-            breadthFirstSearch(::function, true)
             return string
         }
     }
