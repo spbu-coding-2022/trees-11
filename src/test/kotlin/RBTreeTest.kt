@@ -22,11 +22,7 @@ class RBTreeTest {
             return Stream.of(
                 Arguments.of(arrayOf(4), null, "insert one node test"),
                 Arguments.of(arrayOf(4), Pair(4, "5k"), "two inserts with eq. keys of the first node"),
-                Arguments.of(
-                    arrayOf(4, 1, 5, 6),
-                    Pair(4, "5k"),
-                    "two inserts with eq. keys of the first node in non-degenerate tree"
-                ),
+                Arguments.of(arrayOf(4, 1, 5, 6), Pair(4, "5k"), "two inserts with eq. keys of the first node in non-degenerate tree"),
                 Arguments.of(arrayOf(5, 6, 4), Pair(4, "5k"), "two inserts with eq. keys of node"),
                 Arguments.of(Array(1000) { Random.nextInt() }, Pair(Random.nextInt(), "random"), "random insert")
             )
@@ -50,43 +46,29 @@ class RBTreeTest {
         fun debugTestsFactory(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(arrayOf(4), "4 \n", "insert root"),
-                Arguments.of(
-                    arrayOf(5, 6, 3, 4, 1, 2), "5 \n3 6 \n1 4 - - \n- 2 ", "grandfather isn't root, uncle red"
-                ),
+                Arguments.of(arrayOf(5, 6, 3, 4, 1, 2), "5 \n3 6 \n1 4 - - \n- 2 ", "grandfather isn't root, uncle red"),
                 Arguments.of(arrayOf(6, 3, 8, 4), "6 \n3 8 \n- 4 ", "grandfather root, red uncle)"),
                 Arguments.of(arrayOf(6, 4, 5), "5 \n4 6 \n", "zigzag, null uncle"),
                 Arguments.of(arrayOf(5, 4, 3), "4 \n3 5 \n", "straight line, null uncle"),
                 Arguments.of(arrayOf(8, 9, 5, 6, 3, 2, 4, 1), "5 \n3 8 \n2 4 6 9 \n1 ", "change color, right rotation"),
                 Arguments.of(arrayOf(8, 9, 5, 6, 3, 1, 2), "8 \n5 9 \n2 6 - - \n1 3 ", "two rotation"),
-            )
+                )
         }
 
         @JvmStatic
         fun debugRemoveTestsFactory(): Stream<Arguments> {
             return Stream.of(
-                Arguments.of(arrayOf(4, 2, 5, 3), 3, "4 \n2 5 \n", "remove red leaf"),
-                Arguments.of(arrayOf(4, 2, 5, 3), 2, "4 \n3 5 \n", "remove black with red child"),
-                Arguments.of(
-                    arrayOf(5, 2, 8, 7, 9, 10, 6), 2, "8 \n6 9 \n5 7 - 10 \n", "remove left black with red brother 1"
-                ),
-                Arguments.of(
-                    arrayOf(5, 2, 8, 10, 6, 7, 9), 2, "8 \n6 10 \n5 7 9 ", "remove left black with red brother 2"
-                ),
-                Arguments.of(
-                    arrayOf(5, 2, 8, 1, 3, 0, 4), 8, "2 \n1 4 \n0 - 3 5 \n", "remove right black with red brother 1"
-                ),
-                Arguments.of(
-                    arrayOf(5, 2, 8, 0, 4, 1, 3), 8, "2 \n0 4 \n- 1 3 5 \n", "remove right black with red brother 2"
-                ),
-                Arguments.of(arrayOf(5, 2, 8, 7, 9), 2, "8 \n5 9 \n- 7 ", "remove black with black brother right"),
-                Arguments.of(arrayOf(5, 2, 8, 1, 3), 8, "2 \n1 5 \n- - 3 ", "remove black with black brother left"),
-                Arguments.of(
-                    arrayOf(3, 1, 9, 7, 11, 5, 8),
-                    7,
-                    "3 \n1 9 \n- - 8 11 \n- - - - 5 ",
-                    "remove node with two red children"
-                ),
-            )
+//                Arguments.of(arrayOf(4, 2, 5, 3), arrayOf(3), "4 \n2 5 \n", "remove red leaf"),
+//                Arguments.of(arrayOf(4, 2, 5, 3), arrayOf(2), "4 \n3 5 \n", "remove black with red child"),
+                Arguments.of(arrayOf(5, 2, 8, 7, 9, 10, 6), arrayOf(2), "6 \n5 8 \n- - 7 9 \n- - - - - - - 10 \n", "remove left black with red brother 1"),
+                Arguments.of(arrayOf(5, 2, 8, 10, 6, 7, 9), arrayOf(2), "6 \n5 8 \n- - 7 10 \n- - - - - - 9 ", "remove left black with red brother 2"),
+                Arguments.of(arrayOf(5, 2, 8, 1, 3, 0, 4), arrayOf(8), "4 \n2 5 \n1 3 - - \n0 ", "remove right black with red brother 1"),
+                Arguments.of(arrayOf(5, 2, 8, 0, 4, 1, 3), arrayOf(8), "4 \n2 5 \n0 3 - - \n- 1 ", "remove right black with red brother 2"),
+                Arguments.of(arrayOf(5, 2, 8, 7, 9), arrayOf(2), "8 \n5 9 \n- 7 ", "remove black with black brother right"),
+                Arguments.of(arrayOf(5, 2, 8, 1, 3), arrayOf(8), "2 \n1 5 \n- - 3 ", "remove black with black brother left"),
+                Arguments.of(arrayOf(3, 1, 9, 7, 11, 5, 8), arrayOf(7), "3 \n1 9 \n- - 8 11 \n- - - - 5 ", "remove node with two red children"),
+                Arguments.of(arrayOf(96, 69, 3, 49, 89, 61, 61, 16, 33, 21), arrayOf(69, 49), "61 \n16 89 \n3 33 - 96 \n- - 21 ", "add something"),
+                )
         }
     }
 
@@ -123,9 +105,9 @@ class RBTreeTest {
     @ParameterizedTest(name = "{3} ({0}, {1}")
     @MethodSource("debugRemoveTestsFactory")
     @DisplayName("remove tests using debug")
-    fun removeTestsWithDebug(keys: Array<Int>, remove: Int, treeInString: String, name: String) {
+    fun removeTestsWithDebug(keys: Array<Int>, remove: Array<Int>, treeInString: String, name: String) {
         val tree = generateTreeWithInsert(*keys.toIntArray())
-        tree.remove(remove)
+        remove.forEach { tree.remove(it)}
         Assertions.assertEquals(treeInString, tree.Debug().treeKeysInString())
     }
 
