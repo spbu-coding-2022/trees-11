@@ -1,4 +1,4 @@
-package interfaces
+package dataBase
 
 interface DataBase {
     fun writeTree()

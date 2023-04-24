@@ -1,8 +1,7 @@
 package storedTreeWithCoordinate
 
 import RBTree
-import abstractTree.BinTree
-import interfaces.DataBase
+import dataBase.DataBase
 import java.io.IOException
 import java.sql.DriverManager
 import java.sql.SQLException

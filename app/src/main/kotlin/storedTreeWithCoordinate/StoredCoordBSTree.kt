@@ -1,7 +1,7 @@
 package storedTreeWithCoordinate
 
 import BSTree
-import interfaces.DataBase
+import dataBase.DataBase
 import org.neo4j.driver.Session
 import org.neo4j.driver.exceptions.value.Uncoercible
 import java.io.IOException

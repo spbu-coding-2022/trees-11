@@ -1,5 +1,3 @@
-package abstractTree
-
 abstract class BalanceTree<Key : Comparable<Key>, Value> : BinTree<Key, Value> {
     constructor() : super()
     constructor(key: Key, value: Value) : super(key, value)
