@@ -163,6 +163,10 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         newNode?.let { it.parent = parent }
     }
 
+    fun clean() {
+        rootNode = null
+    }
+
     protected fun breadthFirstSearch(addNullNodes: Boolean = false, function: (BinNode<Key, Value>?) -> Unit) {
         val queue: Queue<BinNode<Key, Value>?> = LinkedList(listOf(rootNode))
 

@@ -9,46 +9,63 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.extension
 
-class Json(private val dirName: String) : DataBase {
+class Json(private val saveDirPath: String) : DataBase {
     private val mapper = jacksonObjectMapper()
 
     init {
-        if (dirName.last() != '\\' && dirName.last() != '/') throw IllegalArgumentException("Please, don't use '/' or '\\' in the end of dir path")
+        if (saveDirPath.last() == '\\' || saveDirPath.last() == '/') throw IllegalArgumentException("Please, don't use '/' or '\\' in the end of dir path")
     }
 
     private fun getFile(treeName: String) = try {
-        File("${dirName}${treeName}/.json")
+        File("${saveDirPath}/${treeName}.json")
     } catch (ex: Exception) {
-        throw IOException("cannot get file with name: ${dirName}${treeName}/.json")
+        throw IOException("cannot get file with name: ${saveDirPath}/${treeName}.json")
     }
 
     override fun saveTree(
-        treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>, treeType: String
+        treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>
     ) {
-        if (isSupportTreeType(treeName)) throw IllegalArgumentException("Unsupported tree type")
-        if (treeName.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
+        if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
+        validateName(treeName)
+
         removeTree(treeName)
+
         val jsonFile = getFile(treeName)
+        File(saveDirPath).mkdirs()
         jsonFile.createNewFile()
-        jsonFile.appendText(mapper.writeValueAsString(Pair(treeName, treeType)))
-        jsonFile.appendText(mapper.writeValueAsString(tree.getKeyValueList()))
+
+        jsonFile.appendText(
+            mapper.writeValueAsString(
+                Pair(
+                    Pair(treeName, tree::class.simpleName),
+                    tree.getKeyValueList()
+                )
+            )
+        )
     }
 
     override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+        validateName(treeName)
+
         val jsonFile = getFile(treeName)
 
-        val treeParams = mapper.readValue<Pair<String, String>>(jsonFile)
-        val tree = typeToTree(treeParams.second)
-        tree.insert(*mapper.readValue(jsonFile))
+        val readTree =
+            mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+                jsonFile
+            )
+        val tree = typeToTree(readTree.first.second)
+        tree.insert(*readTree.second)
         return tree
     }
 
     override fun removeTree(treeName: String) {
+        validateName(treeName)
+
         getFile(treeName).delete()
     }
 
     private fun forAllJsonFile(function: (File) -> Unit) {
-        Files.walk(Paths.get(dirName)).use { path ->
+        Files.walk(Paths.get(saveDirPath)).use { path ->
             path.filter { Files.isRegularFile(it) && Files.isWritable(it) && (it.extension == "json") }
                 .forEach { function(it.toFile()) }
         }
@@ -56,7 +73,13 @@ class Json(private val dirName: String) : DataBase {
 
     override fun getAllTree(): List<Pair<String, String>> {
         val list = mutableListOf<Pair<String, String>>()
-        forAllJsonFile { list.add(mapper.readValue(it)) }
+        forAllJsonFile {
+            list.add(
+                mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+                    it
+                ).first
+            )
+        }
 
         return list
     }

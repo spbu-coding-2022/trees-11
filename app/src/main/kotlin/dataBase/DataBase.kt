@@ -1,21 +1,33 @@
 package dataBase
 
 import trees.*
-import java.sql.SQLException
+import java.io.IOException
 
 interface DataBase {
-    fun isSupportTreeType(treeType: String): Boolean {
-        val supportTypes = arrayOf("trees.BSTree", "trees.RBTree", "trees.AVLTree")
-        return (treeType in supportTypes)
-    }
+    fun isSupportTreeType(tree: BinTree<*, *>) = when (tree) {
+            is BSTree,
+            is RBTree,
+            is AVLTree -> true
+            else -> false
+        }
 
     fun typeToTree(type: String): BinTree<String, Pair<String, Pair<Double, Double>>> = when (type) {
-        "trees.BSTree" -> BSTree()
-        "trees.RBTree" -> RBTree()
-        "trees.AVLTree" -> AVLTree()
-        else -> throw SQLException("invalid type of tree")
+        BSTree::class.simpleName -> BSTree()
+        RBTree::class.simpleName -> RBTree()
+        AVLTree::class.simpleName -> AVLTree()
+        else -> throw IOException("invalid type of tree")
     }
-    fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>, treeType: String)
+
+    fun validateName(name: String) {
+        for (i in name)
+            if (i !in 'a'..'z' && i !in 'A'..'Z' && i !in '0'..'9')
+                throw IllegalArgumentException("Unsupported tree name, please use only ascii letters or digits")
+        if (name[0] in '0'..'9')
+            throw IllegalArgumentException("Unsupported tree name, please don't use a digit as the first char")
+        if (name.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
+    }
+
+    fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>)
     fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>>
     fun removeTree(treeName: String)
     fun getAllTree(): List<Pair<String, String>>
