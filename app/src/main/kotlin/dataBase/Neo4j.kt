@@ -31,7 +31,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         }
     }
 
-    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>) {
+    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
@@ -45,7 +45,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     private fun saveNode(
         key: String,
         value: String,
-        coordinate: Pair<Double, Double>,
+        coordinate: Pair<Float, Float>,
         prevKey: String?,
         treeName: String
     ) {
@@ -63,7 +63,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         }
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>> {
         validateName(treeName)
 
         var type = ""
@@ -84,7 +84,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
                         it["key"].asString(),
                         Pair(
                             it["value"].asString(),
-                            Pair(it["x"].asDouble(), it["y"].asDouble())
+                            Pair(it["x"].asFloat(), it["y"].asFloat())
                         )
                     )
                 } catch (e: Uncoercible) {

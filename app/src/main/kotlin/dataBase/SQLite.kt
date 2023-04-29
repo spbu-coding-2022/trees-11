@@ -18,7 +18,7 @@ class SQLite(dbPath: String, maxStringLen: UInt) : DataBase {
     private val getAllTreesStatement by lazy { connection.prepareStatement("SELECT trees.name as name, trees.type as type FROM trees;") }
 
 
-    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>) {
+    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
@@ -32,19 +32,19 @@ class SQLite(dbPath: String, maxStringLen: UInt) : DataBase {
             .forEach { saveNode(it.first, it.second.first, it.second.second, treeName, addNodeStatement) }
         addNodeStatement.close()
     }
-
+    
     private fun saveNode(
         key: String,
         value: String,
-        coordinate: Pair<Double, Double>,
+        coordinate: Pair<Float, Float>,
         treeName: String,
         addNodeStatement: PreparedStatement
     ) {
         try {
             addNodeStatement.setString(1, key)
             addNodeStatement.setString(2, value)
-            addNodeStatement.setDouble(3, coordinate.first)
-            addNodeStatement.setDouble(4, coordinate.second)
+            addNodeStatement.setFloat(3, coordinate.first)
+            addNodeStatement.setFloat(4, coordinate.second)
 
             addNodeStatement.execute()
         } catch (ex: Exception) {
@@ -116,7 +116,7 @@ class SQLite(dbPath: String, maxStringLen: UInt) : DataBase {
 
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>> {
         validateName(treeName)
 
         val nodes = "${treeName}Nodes"
@@ -131,7 +131,7 @@ class SQLite(dbPath: String, maxStringLen: UInt) : DataBase {
                     nodesSet.getString("key"),
                     Pair(
                         nodesSet.getString("value"),
-                        Pair(nodesSet.getDouble("x"), nodesSet.getDouble("y"))
+                        Pair(nodesSet.getFloat("x"), nodesSet.getFloat("y"))
                     )
                 )
             }

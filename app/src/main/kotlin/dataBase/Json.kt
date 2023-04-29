@@ -23,7 +23,7 @@ class Json(private val saveDirPath: String) : DataBase {
     }
 
     override fun saveTree(
-        treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>
+        treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>
     ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
@@ -44,13 +44,13 @@ class Json(private val saveDirPath: String) : DataBase {
         )
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>> {
         validateName(treeName)
 
         val jsonFile = getFile(treeName)
 
         val readTree =
-            mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+            mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
                 jsonFile
             )
         val tree = typeToTree(readTree.first.second)
@@ -75,7 +75,7 @@ class Json(private val saveDirPath: String) : DataBase {
         val list = mutableListOf<Pair<String, String>>()
         forAllJsonFile {
             list.add(
-                mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+                mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
                     it
                 ).first
             )

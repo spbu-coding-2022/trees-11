@@ -9,9 +9,9 @@ interface DataBase {
             is RBTree,
             is AVLTree -> true
             else -> false
-        }
+        }   
 
-    fun typeToTree(type: String): BinTree<String, Pair<String, Pair<Double, Double>>> = when (type) {
+    fun typeToTree(type: String): BinTree<String, Pair<String, Pair<Float, Float>>> = when (type) {
         BSTree::class.simpleName -> BSTree()
         RBTree::class.simpleName -> RBTree()
         AVLTree::class.simpleName -> AVLTree()
@@ -27,8 +27,8 @@ interface DataBase {
         if (name.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
     }
 
-    fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>)
-    fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>>
+    fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>)
+    fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>>
     fun removeTree(treeName: String)
     fun getAllTree(): List<Pair<String, String>>
     fun clean()
