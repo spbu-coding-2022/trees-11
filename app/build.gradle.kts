@@ -1,17 +1,10 @@
 plugins {
     id("trees.kotlin-application-conventions")
-
     id("org.jetbrains.compose") version "1.4.0"
 }
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-}
 
 val sqliteJdbcVersion: String by project
 
@@ -22,9 +15,14 @@ dependencies {
     implementation("org.xerial", "sqlite-jdbc", sqliteJdbcVersion)
 
     implementation(compose.desktop.currentOs)
-    implementation ("org.jetbrains.compose.material3:material3-desktop:1.2.1")
+    implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
 }
 
 application {
     mainClass.set("MainKt")
+}
+
+repositories {
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    google()
 }
