@@ -6,9 +6,8 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
-class SQLite(dbPath: String, maxStringLen: UInt) : DataBase {
+class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
     companion object {
-        private const val maxStringLen = 255
         private const val DB_DRIVER = "jdbc:sqlite"
     }
 
