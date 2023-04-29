@@ -195,6 +195,20 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         return list
     }
 
+    fun getParentData(key: Key): Pair<Key, Value>? {
+        val parent = getParent(key)
+        return if (parent != null)
+            Pair(parent.key, parent.value)
+        else null
+
+    }
+
+    fun getNodesDataWithParentValue(): List<Triple<Key, Value, Value?>> {
+        val list = mutableListOf<Triple<Key, Value, Value?>>()
+        breadthFirstSearch { node -> if (node != null) list.add(Triple(node.key, node.value, node.parent?.value)) }
+        return list
+    }
+
     internal open inner class Debug {
         fun treeKeysInString(): String {
             var sizeOfLevel = 1
