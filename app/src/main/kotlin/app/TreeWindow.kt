@@ -1,13 +1,10 @@
 package UIT
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -42,14 +39,13 @@ fun main() = application {
         }
     }
 
-@Preview
 @Composable
 fun Insert(/*keyValue: (keyString: String, value: String) -> Unit*/) {
     Column(modifier = Modifier.padding(start = 32.dp, top = 16.dp).width(300.dp)) {
         Text(text = "Insert:", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(7.dp))
 
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             var textKey by remember { mutableStateOf("") }
             var textValue by remember { mutableStateOf("") }
 
@@ -59,6 +55,7 @@ fun Insert(/*keyValue: (keyString: String, value: String) -> Unit*/) {
                 label = { Text(text = "key")},
                 singleLine = true,
                 modifier = Modifier.weight(0.30f),
+                shape = MaterialTheme.shapes.extraLarge,
                 )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -68,15 +65,19 @@ fun Insert(/*keyValue: (keyString: String, value: String) -> Unit*/) {
                 label = { Text(text = "value")},
                 singleLine = true,
                 modifier = Modifier.weight(0.30f),
-            )
+                shape = MaterialTheme.shapes.extraLarge,
+                )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(onClick = { /*keyValue(textKey, textValue)*/
                 textKey = ""
                 textValue = "" },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.weight(0.30f), ){
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.30f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = md_theme_light_primary)
+            ){
                 Text("go!")
             }
         }
@@ -89,7 +90,7 @@ fun Remove() {
         Text(text = "Remove:", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(7.dp))
 
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             var textKey by remember { mutableStateOf("") }
 
             OutlinedTextField(
@@ -98,15 +99,18 @@ fun Remove() {
                 label = { Text(text = "key") },
                 singleLine = true,
                 modifier = Modifier.weight(0.70f),
-            )
+                shape = MaterialTheme.shapes.extraLarge,
+                )
 
             Spacer(modifier = Modifier.width(16.dp))
 
 
             Button(
                 onClick = {textKey = "" },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.weight(0.30f)
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.30f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = md_theme_light_primary)
             ) {
                 Text("go!")
             }
@@ -120,7 +124,7 @@ fun Find() {
         Text(text = "Find:", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(7.dp))
 
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             var textKey by remember { mutableStateOf("") }
 
             OutlinedTextField(
@@ -129,17 +133,22 @@ fun Find() {
                 label = { Text(text = "key") },
                 singleLine = true,
                 modifier = Modifier.weight(0.70f),
-            )
+                shape = MaterialTheme.shapes.extraLarge,
+                )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(
                 onClick = { textKey = "" },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.weight(0.30f),
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.30f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = md_theme_light_primary)
             ) {
                 Text("go!")
             }
         }
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "Result: ", style = MaterialTheme.typography.headlineSmall)
     }
 }
