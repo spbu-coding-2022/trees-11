@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import dataBase.*
 import trees.*
+import kotlin.math.pow
 
 class Controller {
     init {
@@ -38,6 +39,7 @@ class Controller {
             System.getProperty("user"),
             System.getProperty("password")
         )
+
         DatabaseType.SQLite -> SQLite(System.getProperty("sqlite_path"), System.getProperty("max_string_len").toUInt())
     }
 
@@ -64,7 +66,7 @@ class Controller {
             tree = getTree(treeType)
         }
 
-        fun getAllDrawNodes(name: String, treeType: TreeType) =
+        fun getAllDrawNodes() =
             tree.getNodesDataWithParentValue().map { data ->
                 DrawNode(
                     data.first,
@@ -74,23 +76,44 @@ class Controller {
                 )
             }
 
-        fun drawInsert(key: String, value: String) {
-            val parentData = tree.getParentData(key)
-            var coordinate = Pair(0F, 0F)
+        fun rewriteAllCoordinates() {
+            val startCoord = Pair(0F, 0F) //coordinates of the root node
 
-            if (parentData != null) {
-                coordinate = Pair(parentData.second.second.first + if (key < parentData.first) -4F else 4F, parentData.second.second.second + 4F)
+            val xMinInterval = 4F //interval between nodes
+            val yInterval = 4F
+
+            fun offsetOnLevel(level: Int, height: Int) =
+                ((height - 2) * xMinInterval * (0.5.pow(level) - 1) * (-2)).toFloat() //the sum of the terms of the geometric progression
+
+            var lastLevel = -1
+            var curX = startCoord.first
+            var curY = startCoord.second + yInterval
+            var levelInterval = 0F
+            tree.rewriteAllValue(true) { value, level, height ->
+                if (level != lastLevel) {
+                    curY -= yInterval
+                    curX = -offsetOnLevel(level, height)
+                    levelInterval = xMinInterval * 2F.pow(height - level - 1)
+                } else curX += levelInterval
+                lastLevel = level
+                if (value != null)
+                    Pair(value.first, Pair(curX, curY))
+                else null
             }
-            tree.insert(key, Pair(value, coordinate))
         }
-    }
 
+        fun drawInsert(key: String, value: String) {
+            tree.insert(key, Pair(value, Pair(0F, 0F)))
 
-    fun drawRemove(key: String) {
-        TODO()
-    }
+            rewriteAllCoordinates()
+        }
 
-    fun drawFind(key: String) {
-        TODO()
+        fun drawRemove(key: String) {
+            tree.remove(key)
+
+            rewriteAllCoordinates()
+        }
+
+        fun drawFind(key: String) = tree.get(key)?.first
     }
 }

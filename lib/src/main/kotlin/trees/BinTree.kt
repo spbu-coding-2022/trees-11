@@ -200,13 +200,40 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         return if (parent != null)
             Pair(parent.key, parent.value)
         else null
-
     }
 
     fun getNodesDataWithParentValue(): List<Triple<Key, Value, Value?>> {
         val list = mutableListOf<Triple<Key, Value, Value?>>()
         breadthFirstSearch { node -> if (node != null) list.add(Triple(node.key, node.value, node.parent?.value)) }
         return list
+    }
+
+    fun rewriteAllValue(addNullNodes: Boolean = false, function: (Value?, Int, Int) -> Value?) {
+        val listOfAllNodes = mutableListOf<List<BinNode<Key, Value>?>>()
+        var listOfLevel = mutableListOf<BinNode<Key, Value>?>()
+        var sizeOfLevel = 1
+        var elemInTheLevel = 0
+        breadthFirstSearch(addNullNodes) { node ->
+            listOfLevel.add(node)
+            elemInTheLevel += 1
+
+            if (elemInTheLevel == sizeOfLevel) {
+                listOfAllNodes.add(listOfLevel)
+                sizeOfLevel *= 2
+                elemInTheLevel = 0
+                listOfLevel = mutableListOf()
+            }
+        }
+
+        var curLevel = 0
+        val height = listOfAllNodes.size
+        listOfAllNodes.forEach {
+            it.forEach { node ->
+                val value: Value? = function(node?.value, curLevel, height)
+                if (value != null) node?.value = value
+            }
+            curLevel++
+        }
     }
 
     internal open inner class Debug {
