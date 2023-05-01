@@ -76,10 +76,13 @@ class Controller {
     inner class DrawTree {
         private var tree: BinTree<String, Pair<String, Pair<Float, Float>>>
         private var treeName: String
+        var viewCoordinates = Pair(0F, 0F)
 
         constructor(treeName: String, databaseType: DatabaseType) {
             this.treeName = treeName
-            tree = getDatabase(databaseType).readTree(treeName)
+            val treeData = getDatabase(databaseType).readTree(treeName)
+            tree = treeData.first
+            viewCoordinates = treeData.second
         }
 
         constructor(treeName: String, treeType: TreeType) {
@@ -137,8 +140,12 @@ class Controller {
 
         fun drawFind(key: String) = tree.get(key)?.first
 
+        fun updateCoordinate(node: DrawNode) {
+            tree.insert(node.key, Pair(node.value, node.coordinates.value))
+        }
+
         fun saveToDB(databaseType: DatabaseType) {
-            getDatabase(databaseType).saveTree(treeName, tree)
+            getDatabase(databaseType).saveTree(treeName, tree, viewCoordinates)
         }
 
         fun clean() {
