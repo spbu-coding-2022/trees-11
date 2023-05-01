@@ -11,27 +11,39 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         private const val DB_DRIVER = "jdbc:sqlite"
     }
 
-    private val connection = DriverManager.getConnection("$DB_DRIVER:$dbPath")
-        ?: throw SQLException("Cannot connect to database")
-    private val addTreeStatement by lazy { connection.prepareStatement("INSERT INTO trees (name, type) VALUES (?, ?);") }
+    private val connection = try {
+        DriverManager.getConnection("$DB_DRIVER:$dbPath")
+    } catch (ex: Exception) {
+        throw SQLException("Cannot connect to database\nCheck that it is running and that there is no error in the path to it\n$ex")
+    }
+        ?: throw SQLException("Cannot connect to database\nCheck that it is running and that there is no error in the path to it")
+    private val addTreeStatement by lazy { connection.prepareStatement("INSERT INTO trees (name, type, viewX, viewY) VALUES (?, ?, ?, ?);") }
     private val getAllTreesStatement by lazy { connection.prepareStatement("SELECT trees.name as name, trees.type as type FROM trees;") }
 
 
-    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>) {
+    override fun saveTree(
+        treeName: String,
+        tree: BinTree<String, Pair<String, Pair<Float, Float>>>,
+        viewCoordinates: Pair<Float, Float>
+    ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
-        removeTree(treeName)
         createTreesTable()
+        removeTree(treeName)
         createTableForTree(treeName)
-        addTree(treeName, tree::class.simpleName ?: throw IllegalArgumentException("Cannot get tree type"))
+        addTree(
+            treeName,
+            tree::class.simpleName ?: throw IllegalArgumentException("Cannot get tree type"),
+            viewCoordinates
+        )
 
         val addNodeStatement by lazy { connection.prepareStatement("INSERT INTO ${treeName}Nodes (key, value, x, y) VALUES (?, ?, ?, ?);") }
         tree.getKeyValueList()
             .forEach { saveNode(it.first, it.second.first, it.second.second, treeName, addNodeStatement) }
         addNodeStatement.close()
     }
-    
+
     private fun saveNode(
         key: String,
         value: String,
@@ -56,7 +68,9 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
             executeQuery(
                 "CREATE TABLE if not exists trees (treeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                         "name varchar($maxStringLen), " +
-                        "type varchar($maxStringLen));"
+                        "type varchar($maxStringLen), " +
+                        "viewX FLOAT, " +
+                        "viewY FLOAT);"
             )
         } catch (ex: Exception) {
             throw SQLException("Cannot create table in database\n$ex")
@@ -71,8 +85,8 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
                 "CREATE TABLE if not exists ${treeName}Nodes (nodeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                         "key varchar($maxStringLen), " +
                         "value varchar($maxStringLen), " +
-                        "x INTEGER, " +
-                        "y INTEGER);"
+                        "x FLOAT, " +
+                        "y FLOAT);"
             )
         } catch (ex: Exception) {
             throw SQLException("Cannot create table in database\n$ex")
@@ -84,17 +98,19 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
             try {
                 stmt.execute(query)
             } catch (ex: Exception) {
-                throw SQLException("Cannot execute query: \"$query\"")
+                throw SQLException("Cannot execute query: \"$query\"\n$ex")
             } finally {
                 stmt.close()
             }
         }
     }
 
-    private fun addTree(treeName: String, treeType: String) {
+    private fun addTree(treeName: String, treeType: String, viewCoordinates: Pair<Float, Float>) {
         try {
             addTreeStatement.setString(1, treeName)
             addTreeStatement.setString(2, treeType)
+            addTreeStatement.setFloat(3, viewCoordinates.first)
+            addTreeStatement.setFloat(4, viewCoordinates.second)
 
             addTreeStatement.execute()
         } catch (ex: Exception) {
@@ -102,11 +118,12 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         }
     }
 
-    private fun getTreeType(treeName: String): String {
-        val getTreeTypeStatement by lazy { connection.prepareStatement("SELECT trees.type FROM trees WHERE name = ?") }
+    private fun getTreeData(treeName: String): Pair<String, Pair<Float, Float>> {
+        val getTreeTypeStatement by lazy { connection.prepareStatement("SELECT trees.type as type, trees.viewX as x, trees.viewY as y FROM trees WHERE name = ?") }
         getTreeTypeStatement.setString(1, treeName)
         try {
-            return getTreeTypeStatement.executeQuery().getString(1)
+            val data = getTreeTypeStatement.executeQuery()
+            return Pair(data.getString("type"), Pair(data.getFloat("x"), data.getFloat("y")))
         } catch (ex: Exception) {
             throw SQLException("Cannot get tree type from database\n$ex")
         } finally {
@@ -115,13 +132,14 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
 
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>> {
+    override fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         val nodes = "${treeName}Nodes"
         val getAllNodesStatement by lazy { connection.prepareStatement("SELECT $nodes.key as key, $nodes.value as value, $nodes.x as x, $nodes.y as y FROM $nodes;") }
 
-        val tree = typeToTree(getTreeType(treeName))
+        val treeData = getTreeData(treeName)
+        val tree = typeToTree(treeData.first)
 
         try {
             val nodesSet = getAllNodesStatement.executeQuery()
@@ -140,7 +158,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
             getAllNodesStatement.close()
         }
 
-        return tree
+        return Pair(tree, treeData.second)
     }
 
     override fun removeTree(treeName: String) {

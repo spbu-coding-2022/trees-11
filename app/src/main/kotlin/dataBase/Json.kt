@@ -14,6 +14,7 @@ class Json(private val saveDirPath: String) : DataBase {
 
     init {
         if (saveDirPath.last() == '\\' || saveDirPath.last() == '/') throw IllegalArgumentException("Please, don't use '/' or '\\' in the end of dir path")
+        File(saveDirPath).mkdirs()
     }
 
     private fun getFile(treeName: String) = try {
@@ -23,7 +24,7 @@ class Json(private val saveDirPath: String) : DataBase {
     }
 
     override fun saveTree(
-        treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>
+        treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>, viewCoordinates: Pair<Float, Float>
     ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
@@ -31,31 +32,30 @@ class Json(private val saveDirPath: String) : DataBase {
         removeTree(treeName)
 
         val jsonFile = getFile(treeName)
-        File(saveDirPath).mkdirs()
         jsonFile.createNewFile()
 
         jsonFile.appendText(
             mapper.writeValueAsString(
                 Pair(
-                    Pair(treeName, tree::class.simpleName),
+                    Triple(treeName, tree::class.simpleName, viewCoordinates),
                     tree.getKeyValueList()
                 )
             )
         )
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>> {
+    override fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         val jsonFile = getFile(treeName)
 
         val readTree =
-            mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
+            mapper.readValue<Pair<Triple<String, String, Pair<Float, Float>>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
                 jsonFile
             )
         val tree = typeToTree(readTree.first.second)
         tree.insert(*readTree.second)
-        return tree
+        return Pair(tree, readTree.first.third)
     }
 
     override fun removeTree(treeName: String) {
