@@ -10,28 +10,14 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
-    var name by remember { mutableStateOf("") }
+fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp),
             verticalArrangement = Arrangement.aligned(Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(text = "name") },
-                    singleLine = true,
-                    modifier = Modifier.weight(0.70f),
-                    shape = MaterialTheme.shapes.extraLarge,
-                )
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Spacer(modifier = Modifier.height(15.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = onBack,
@@ -48,9 +34,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.BSTree)
-                        name = ""
-                        onClick(tree)
+                        val files = Controller().Database(Controller.DatabaseType.Json).getAllTrees()
                     },
                     shape = MaterialTheme.shapes.extraLarge,
                     modifier = Modifier.weight(0.3f).height(57.dp),
@@ -59,16 +43,14 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     )
                 ) {
                     Text(
-                        text = "BSTree",
+                        text = "Json",
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.AVLTree)
-                        name = ""
-                        onClick(tree)
+                        val files = Controller().Database(Controller.DatabaseType.SQLite).getAllTrees()
                     },
                     shape = MaterialTheme.shapes.extraLarge,
                     modifier = Modifier.weight(0.3f).height(57.dp),
@@ -77,16 +59,14 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     )
                 ) {
                     Text(
-                        text = "AVLTree",
+                        text = "SQLite",
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.RBTree)
-                        name = ""
-                        onClick(tree)
+                        val files = Controller().Database(Controller.DatabaseType.Neo4j).getAllTrees()
                     },
                     shape = MaterialTheme.shapes.extraLarge,
                     modifier = Modifier.weight(0.3f).height(57.dp),
@@ -95,9 +75,11 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     )
                 ) {
                     Text(
-                        text = "RBTree",
+                        text = "Neo4j",
                     )
                 }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
             }
 
         }
