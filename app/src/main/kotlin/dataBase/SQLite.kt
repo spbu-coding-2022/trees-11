@@ -59,7 +59,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
                         "type varchar($maxStringLen));"
             )
         } catch (ex: Exception) {
-            throw SQLException("Cannot create table in database")
+            throw SQLException("Cannot create table in database\n$ex")
         }
     }
 
@@ -75,7 +75,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
                         "y INTEGER);"
             )
         } catch (ex: Exception) {
-            throw SQLException("Cannot create table in database")
+            throw SQLException("Cannot create table in database\n$ex")
         }
     }
 
@@ -98,7 +98,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
 
             addTreeStatement.execute()
         } catch (ex: Exception) {
-            throw SQLException("Cannot add tree: $treeName")
+            throw SQLException("Cannot add tree: $treeName\n$ex")
         }
     }
 
@@ -108,7 +108,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         try {
             return getTreeTypeStatement.executeQuery().getString(1)
         } catch (ex: Exception) {
-            throw SQLException("Cannot get tree type from database")
+            throw SQLException("Cannot get tree type from database\n$ex")
         } finally {
             getTreeTypeStatement.close()
         }
@@ -135,7 +135,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
                 )
             }
         } catch (ex: Exception) {
-            throw IOException("Cannot get nodes from database")
+            throw IOException("Cannot get nodes from database\n$ex")
         } finally {
             getAllNodesStatement.close()
         }
@@ -151,7 +151,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         executeQuery("DELETE FROM trees WHERE name = '$treeName';")
     }
 
-    override fun getAllTree(): List<Pair<String, String>> {
+    override fun getAllTrees(): List<Pair<String, String>> {
         val list = mutableListOf<Pair<String, String>>()
         val treesSet = getAllTreesStatement.executeQuery()
         while (treesSet.next()) {
@@ -168,7 +168,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
     }
 
     override fun clean() {
-        for (i in getAllTree())
+        for (i in getAllTrees())
             removeTree(i.first)
     }
 }

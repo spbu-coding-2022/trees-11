@@ -25,15 +25,27 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
     protected open var rootNode: BinNode<Key, Value>? = null
 
     constructor()
+
+    /**
+     * creates tree with one node, where node have these key, value
+     */
     constructor(key: Key, value: Value) {
         insert(key, value)
     }
 
+    /**
+     * creates tree with nodes
+     *
+     * @param sort if this param = true, then insert the nodes starting from the average value of the keys
+     */
     constructor(array: Array<out Pair<Key, Value>>, sort: Boolean = false) {
         if (sort) sortInsert(*array)
         else insert(*array)
     }
 
+    /**
+     * inserts the nodes starting from the average value of the keys
+     */
     fun sortInsert(vararg array: Pair<Key, Value>) {
         val serArray = array.sortedBy { it.first }.toTypedArray()
         var indices = serArray.indices.toList()
@@ -51,8 +63,11 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         for (i in keys) remove(i)
     }
 
-    //return the inserted node if the node with the same key wasn't in the tree and null in otherwise
-    //doesn't balance the tree
+    /**
+     * @return the inserted node if the node with the same key wasn't in the tree and null in otherwise
+     *
+     * doesn't balance the tree
+    */
     protected fun insertService(node: BinNode<Key, Value>): BinNode<Key, Value>? {
         if (rootNode == null) {
             rootNode = node
@@ -163,6 +178,9 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         newNode?.let { it.parent = parent }
     }
 
+    /**
+     * removes all nodes from the tree
+     */
     fun clean() {
         rootNode = null
     }
@@ -189,6 +207,10 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         }
     }
 
+    /**
+     * @return all key, value of all nodes in the tree.
+     * In order from left to right, by level.
+     */
     fun getKeyValueList(): List<Pair<Key, Value>> {
         val list = mutableListOf<Pair<Key, Value>>()
         breadthFirstSearch { node -> if (node != null) list.add(Pair(node.key, node.value)) }
@@ -202,12 +224,22 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
         else null
     }
 
+    /**
+     * @return all key, value of all nodes in the tree with value of its parent (null if parent doesn't exist).
+     * In order from left to right, by level.
+     */
     fun getNodesDataWithParentValue(): List<Triple<Key, Value, Value?>> {
         val list = mutableListOf<Triple<Key, Value, Value?>>()
         breadthFirstSearch { node -> if (node != null) list.add(Triple(node.key, node.value, node.parent?.value)) }
         return list
     }
 
+    /**
+     * changes value of all nodes
+     * in order from left to right, by level.
+     *
+     * @param addNullNodes adds null nodes to all places where nodes do not exist, so that each node has two children
+     */
     fun rewriteAllValue(addNullNodes: Boolean = false, function: (Value?, Int, Int) -> Value?) {
         val listOfAllNodes = mutableListOf<List<BinNode<Key, Value>?>>()
         var listOfLevel = mutableListOf<BinNode<Key, Value>?>()
