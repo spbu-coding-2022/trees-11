@@ -7,7 +7,7 @@ import trees.*
 import java.io.IOException
 import kotlin.math.pow
 
-class Controller {
+object Controller {
     init {
         try {
             System.getProperties().load(ClassLoader.getSystemResourceAsStream("App.properties"))
@@ -59,7 +59,7 @@ class Controller {
         DatabaseType.SQLite -> SQLite(System.getProperty("sqlite_path"), System.getProperty("max_string_len").toUInt())
     }
 
-    inner class Database(private val databaseType: DatabaseType) {
+    class Database(private val databaseType: DatabaseType) {
         private val database = getDatabase(databaseType)
 
         fun getAllTrees() = database.getAllTrees()
@@ -75,7 +75,7 @@ class Controller {
         var prevCoordinates: MutableState<Pair<Float, Float>?>
     )
 
-    inner class DrawTree {
+    class DrawTree {
         private var tree: BinTree<String, Pair<String, Pair<Float, Float>>>
         private var treeName: String
         var viewCoordinates = Pair(0F, 0F)
