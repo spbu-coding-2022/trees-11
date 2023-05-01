@@ -4,15 +4,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import dataBase.*
 import trees.*
+import java.io.IOException
 import kotlin.math.pow
 
 class Controller {
     init {
-        System.getProperties().load(ClassLoader.getSystemResourceAsStream("Json.properties"))
-        System.getProperties().load(ClassLoader.getSystemResourceAsStream("Neo4j.properties"))
-        System.getProperties().load(ClassLoader.getSystemResourceAsStream("SQLite.properties"))
+        try {
+            System.getProperties().load(ClassLoader.getSystemResourceAsStream("Json.properties"))
+            System.getProperties().load(ClassLoader.getSystemResourceAsStream("Neo4j.properties"))
+            System.getProperties().load(ClassLoader.getSystemResourceAsStream("SQLite.properties"))
+        }
+        catch (ex: Exception) {
+            throw IOException("Cannot get properties file\nCheck that all properties file exist in the src/main/kotlin/app/resources\n$ex")
+        }
     }
-
 
     enum class TreeType {
         RBTree,
@@ -24,6 +29,15 @@ class Controller {
         Json,
         Neo4j,
         SQLite
+    }
+
+    fun validateName(name: String) {
+        for (i in name)
+            if (i !in 'a'..'z' && i !in 'A'..'Z' && i !in '0'..'9')
+                throw IllegalArgumentException("Unsupported tree name, please use only ascii letters or digits")
+        if (name[0] in '0'..'9')
+            throw IllegalArgumentException("Unsupported tree name, please don't use a digit as the first char")
+        if (name.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
     }
 
     fun getTree(treeType: TreeType) = when (treeType) {
@@ -43,6 +57,15 @@ class Controller {
         DatabaseType.SQLite -> SQLite(System.getProperty("sqlite_path"), System.getProperty("max_string_len").toUInt())
     }
 
+    inner class Database(private val databaseType: DatabaseType) {
+        private val database = getDatabase(databaseType)
+
+        fun getAllTrees() = database.getAllTrees()
+        fun removeTree(treeName: String) = database.removeTree(treeName)
+        fun clean() = database.clean()
+        fun close() = database.close()
+    }
+
     open class DrawNode(
         var key: String,
         var value: String,
@@ -50,11 +73,9 @@ class Controller {
         var prevCoordinates: MutableState<Pair<Float, Float>?>
     )
 
-    fun getAllTrees(databaseType: DatabaseType) = getDatabase(databaseType).getAllTree()
-
     inner class DrawTree {
-        var tree: BinTree<String, Pair<String, Pair<Float, Float>>>
-        var treeName: String
+        private var tree: BinTree<String, Pair<String, Pair<Float, Float>>>
+        private var treeName: String
 
         constructor(treeName: String, databaseType: DatabaseType) {
             this.treeName = treeName
@@ -76,8 +97,8 @@ class Controller {
                 )
             }
 
-        fun rewriteAllCoordinates() {
-            val startCoord = Pair(0F, 0F) //coordinates of the root node
+        private fun rewriteAllCoordinates() {
+            val startCoordinate = Pair(0F, 0F) //coordinates of the root node
 
             val xMinInterval = 4F //interval between nodes
             val yInterval = 4F
@@ -86,8 +107,8 @@ class Controller {
                 ((height - 2) * xMinInterval * (0.5.pow(level) - 1) * (-2)).toFloat() //the sum of the terms of the geometric progression
 
             var lastLevel = -1
-            var curX = startCoord.first
-            var curY = startCoord.second + yInterval
+            var curX = startCoordinate.first
+            var curY = startCoordinate.second + yInterval
             var levelInterval = 0F
             tree.rewriteAllValue(true) { value, level, height ->
                 if (level != lastLevel) {
@@ -115,5 +136,13 @@ class Controller {
         }
 
         fun drawFind(key: String) = tree.get(key)?.first
+
+        fun saveToDB(databaseType: DatabaseType) {
+            getDatabase(databaseType).saveTree(treeName, tree)
+        }
+
+        fun clean() {
+            tree.clean()
+        }
     }
 }
