@@ -48,7 +48,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.BSTree)
+                        val tree = Controller.DrawTree(name, Controller.TreeType.BSTree)
                         name = ""
                         onClick(tree)
                     },
@@ -66,7 +66,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.AVLTree)
+                        val tree = Controller.DrawTree(name, Controller.TreeType.AVLTree)
                         name = ""
                         onClick(tree)
                     },
@@ -84,7 +84,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        val tree = Controller().DrawTree(name, Controller.TreeType.RBTree)
+                        val tree = Controller.DrawTree(name, Controller.TreeType.RBTree)
                         name = ""
                         onClick(tree)
                     },

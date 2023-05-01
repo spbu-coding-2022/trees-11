@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
-    val controller = Controller()
     var files = listOf(Pair("", ""))
     var dataBaseType: Controller.DatabaseType = Controller.DatabaseType.Json
     MaterialTheme {
@@ -39,7 +38,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        files = controller.Database(Controller.DatabaseType.Json).getAllTrees()
+                        files = Controller.Database(Controller.DatabaseType.Json).getAllTrees()
                         dataBaseType = Controller.DatabaseType.Json
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -56,7 +55,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        files = controller.Database(Controller.DatabaseType.SQLite).getAllTrees()
+                        files = Controller.Database(Controller.DatabaseType.SQLite).getAllTrees()
                         dataBaseType = Controller.DatabaseType.SQLite
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -73,7 +72,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        files = controller.Database(Controller.DatabaseType.Neo4j).getAllTrees()
+                        files = Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees()
                         dataBaseType = Controller.DatabaseType.Neo4j
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -98,7 +97,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                             Spacer(modifier = Modifier.width(15.dp))
                             Button(
                                 onClick = {
-                                    onClick(controller.DrawTree(file.first, dataBaseType))
+                                    onClick(Controller.DrawTree(file.first, dataBaseType))
                                 },
                                 shape = MaterialTheme.shapes.extraLarge,
                                 modifier = Modifier.weight(0.30f).height(57.dp),
@@ -111,7 +110,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                             Spacer(modifier = Modifier.width(15.dp))
                             Button(
                                 onClick = {
-                                    controller.Database(dataBaseType).removeTree(file.first)
+                                    Controller.Database(dataBaseType).removeTree(file.first)
                                 },
                                 shape = MaterialTheme.shapes.extraLarge,
                                 modifier = Modifier.weight(0.30f).height(57.dp),
