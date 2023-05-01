@@ -29,40 +29,26 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import kotlin.math.roundToInt
 
-open class ViewTree<Key : Comparable<Key>, Value> {
-
-    protected class ViewNode<Int : Comparable<Int>, String>(
-        var key: Int,
-        var value: String,
-        var x: MutableState<Float>,
-        var y: MutableState<Float>,
-        var left: ViewNode<Int, String>? = null,
-        var right: ViewNode<Int, String>? = null,
-        var color: Boolean,
-    )
+open class ViewTree {
 
     @Composable
-    protected fun drawTree(node: ViewNode<Int, String>){
-
-        node.left?.let {
-            drawLine(node.x, node.y, it.x, it.y)
-            drawTree(it)
-
-        }
-        drawNode(node.key.toString(), node.x, node.y)
-        node.right?.let {
-            drawLine(node.x, node.y, it.x, it.y)
-            drawTree(it)
-        }
+    open fun drawTree(tree: Controller.DrawTree ) {
+        tree.getAllDrawNodes().forEach { node ->
+            drawNode(node.key, node.coordinates)}
+//            node.prevCoordinates.value?.let {
+//                drawLine(node.coordinates, node.prevCoordinates)
+//            }
+//        }
     }
 
     @Composable
-    fun drawNode(key: String,
-                 centerX: MutableState<Float>,
-                 centerY: MutableState<Float>) {
+    fun drawNode(
+        key: String,
+        coordinates: MutableState<Pair<Float, Float>>
+    ) {
 
-        val offsetX = remember { mutableStateOf(0f) }
-        val offsetY = remember { mutableStateOf(0f) }
+        val offsetX = remember { mutableStateOf(coordinates.value.first) }
+        val offsetY = remember { mutableStateOf(coordinates.value.second) }
 
         Box(
             modifier = Modifier
@@ -73,26 +59,24 @@ open class ViewTree<Key : Comparable<Key>, Value> {
                     )
                 }
                 .pointerInput(Unit) {
-                     detectDragGestures { change, dragAmount ->
+                    detectDragGestures { _, dragAmount ->
                         offsetX.value += dragAmount.x
                         offsetY.value += dragAmount.y
-                        centerX.value = offsetX.value
-                        centerY.value = offsetY.value
+                        //coordinates.value = Pair(offsetX.value, offsetY.value)
                     }
                 }
-                .size(40.dp)
+                .size(60.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary)
                 .onGloballyPositioned { layoutCoordinates ->
                     val rect = layoutCoordinates.boundsInParent()
-                    centerX.value = rect.center.x
-                    centerY.value = rect.center.y
+                    coordinates.value = Pair(rect.center.x, rect.center.y)
                 },
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = key,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
@@ -100,12 +84,14 @@ open class ViewTree<Key : Comparable<Key>, Value> {
     }
 
     @Composable
-    fun drawLine(x1: MutableState<Float>, y1: MutableState<Float>, x2: MutableState<Float>, y2: MutableState<Float>) {
+    fun drawLine(coordinates:MutableState<Pair<Float, Float>>, prevCoordinates: MutableState<Pair<Float, Float>>) {
         Canvas(modifier = Modifier.fillMaxSize().zIndex(-1f)) {
-            drawLine(color = Color.DarkGray,
-                     start = Offset(x1.value, y1.value),
-                     end = Offset(x2.value, y2.value),
-                     strokeWidth = 5f )
+            drawLine(
+                color = Color.DarkGray,
+                start = Offset(coordinates.value.first,coordinates.value.second),
+                end = Offset(prevCoordinates.value.first, prevCoordinates.value.second),
+                strokeWidth = 5f
+            )
         }
     }
 }
