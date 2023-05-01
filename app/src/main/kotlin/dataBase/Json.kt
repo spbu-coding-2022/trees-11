@@ -14,6 +14,7 @@ class Json(private val saveDirPath: String) : DataBase {
 
     init {
         if (saveDirPath.last() == '\\' || saveDirPath.last() == '/') throw IllegalArgumentException("Please, don't use '/' or '\\' in the end of dir path")
+        File(saveDirPath).mkdirs()
     }
 
     private fun getFile(treeName: String) = try {
@@ -31,7 +32,6 @@ class Json(private val saveDirPath: String) : DataBase {
         removeTree(treeName)
 
         val jsonFile = getFile(treeName)
-        File(saveDirPath).mkdirs()
         jsonFile.createNewFile()
 
         jsonFile.appendText(
