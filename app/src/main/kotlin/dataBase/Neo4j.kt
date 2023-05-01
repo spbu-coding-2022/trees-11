@@ -25,8 +25,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     private fun executeQuery(query: String) {
         try {
             session.run(query)
-        }
-        catch (ex: ServiceUnavailableException) {
+        } catch (ex: ServiceUnavailableException) {
             throw IOException("Cannot connect to Neo4j database\nCheck that Neo4j is running and that all the data in the app/src/main/resources/Neo4j.properties file is correct")
         }
     }
@@ -68,7 +67,8 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
 
         var type = ""
         session.executeRead { tx ->
-            type = tx.run("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName') RETURN tree.type AS type").single()["type"].asString()
+            type = tx.run("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName') RETURN tree.type AS type")
+                .single()["type"].asString()
         }
 
         val tree = typeToTree(type)
@@ -101,7 +101,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         executeQuery("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName')-[:next*]->(node) DETACH DELETE node, tree")
     }
 
-    override fun getAllTree(): List<Pair<String, String>> {
+    override fun getAllTrees(): List<Pair<String, String>> {
         val list = mutableListOf<Pair<String, String>>()
         session.executeRead { tx ->
             val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type")

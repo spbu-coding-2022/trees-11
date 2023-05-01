@@ -30,7 +30,7 @@ interface DataBase {
     fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Float, Float>>>)
     fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Float, Float>>>
     fun removeTree(treeName: String)
-    fun getAllTree(): List<Pair<String, String>>
+    fun getAllTrees(): List<Pair<String, String>>
     fun clean()
     fun close()
     fun cleanAndClose() {

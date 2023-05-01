@@ -71,7 +71,7 @@ class Json(private val saveDirPath: String) : DataBase {
         }
     }
 
-    override fun getAllTree(): List<Pair<String, String>> {
+    override fun getAllTrees(): List<Pair<String, String>> {
         val list = mutableListOf<Pair<String, String>>()
         forAllJsonFile {
             list.add(
