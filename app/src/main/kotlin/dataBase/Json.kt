@@ -19,7 +19,7 @@ class Json(private val saveDirPath: String) : DataBase {
     private fun getFile(treeName: String) = try {
         File("${saveDirPath}/${treeName}.json")
     } catch (ex: Exception) {
-        throw IOException("cannot get file with name: ${saveDirPath}/${treeName}.json")
+        throw IOException("cannot get file with name: ${saveDirPath}/${treeName}.json\n$ex")
     }
 
     override fun saveTree(

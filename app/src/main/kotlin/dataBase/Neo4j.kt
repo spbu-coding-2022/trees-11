@@ -17,8 +17,8 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         try {
             driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
             session = driver.session()
-        } catch (e: IllegalArgumentException) {
-            throw IOException("can't start session, try to change uri, user name or password")
+        } catch (ex: Exception) {
+            throw IOException("can't start session, try to change uri, user name or password\n$ex")
         }
     }
 
@@ -26,7 +26,9 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         try {
             session.run(query)
         } catch (ex: ServiceUnavailableException) {
-            throw IOException("Cannot connect to Neo4j database\nCheck that Neo4j is running and that all the data in the app/src/main/resources/Neo4j.properties file is correct")
+            throw IOException("Cannot connect to Neo4j database\n" +
+                    "Check that Neo4j is running and that all the data in the app/src/main/resources/Neo4j.properties file is correct\n" +
+                    "$ex")
         }
     }
 
@@ -87,8 +89,10 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
                             Pair(it["x"].asFloat(), it["y"].asFloat())
                         )
                     )
-                } catch (e: Uncoercible) {
-                    throw IOException("Corrupted data in the database.\n Possible solution: Clear the data.")
+                } catch (ex: Uncoercible) {
+                    throw IOException("Corrupted data in the database.\nPossible solution: Clear the data.")
+                } catch (ex: Exception) {
+                    throw IOException("Cannot get or recognise data\n$ex")
                 }
             }
         }
