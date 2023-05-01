@@ -10,11 +10,11 @@ import kotlin.math.pow
 class Controller {
     init {
         try {
+            System.getProperties().load(ClassLoader.getSystemResourceAsStream("App.properties"))
             System.getProperties().load(ClassLoader.getSystemResourceAsStream("Json.properties"))
             System.getProperties().load(ClassLoader.getSystemResourceAsStream("Neo4j.properties"))
             System.getProperties().load(ClassLoader.getSystemResourceAsStream("SQLite.properties"))
-        }
-        catch (ex: Exception) {
+        } catch (ex: Exception) {
             throw IOException("Cannot get properties file\nCheck that all properties file exist in the src/main/kotlin/app/resources\n$ex")
         }
     }
@@ -37,7 +37,9 @@ class Controller {
                 throw IllegalArgumentException("Unsupported tree name, please use only ascii letters or digits")
         if (name[0] in '0'..'9')
             throw IllegalArgumentException("Unsupported tree name, please don't use a digit as the first char")
-        if (name.isEmpty()) throw IllegalArgumentException("Incorrect tree name")
+        if (name.length !in 1..System.getProperty("max_string_len")
+                .toInt()
+        ) throw IllegalArgumentException("Incorrect tree name\nThe name must be less than ${System.getProperty("max_string_len")} and greater than 0")
     }
 
     fun getTree(treeType: TreeType) = when (treeType) {
