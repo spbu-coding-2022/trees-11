@@ -70,7 +70,7 @@ open class ViewTree {
                 tooltip = {
                     Surface {
                         Text(
-                            text = "value: ${node.value} \nx: ${node.x.value} \ny: ${node.y.value}"
+                            text = "value: ${node.value}"
                         )
                     }
                 },

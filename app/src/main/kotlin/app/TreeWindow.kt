@@ -22,6 +22,7 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
     val offSetX = remember { mutableStateOf(0f) }
     val offSetY = remember { mutableStateOf(0f) }
 
+    tree.reInitAllDrawNodes()
 
     MaterialTheme {
         Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
