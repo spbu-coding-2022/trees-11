@@ -50,6 +50,7 @@ open class ViewTree {
                     node.parent?.let {
                         drawLine(node, it, 50, offSetX, offSetY)
                     }
+                    tree.updateCoordinate(node)
                 }
             }
         }
