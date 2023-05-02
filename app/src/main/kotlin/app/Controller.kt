@@ -49,11 +49,11 @@ object Controller {
     }
 
     fun getDatabase(databaseType: DatabaseType) = when (databaseType) {
-        DatabaseType.Json -> Json(System.getProperty("save_dir"))
+        DatabaseType.Json -> Json(System.getProperty("json_save_dir"))
         DatabaseType.Neo4j -> Neo4j(
-            System.getProperty("uri"),
-            System.getProperty("user"),
-            System.getProperty("password")
+            System.getProperty("neo4j_uri"),
+            System.getProperty("neo4j_user"),
+            System.getProperty("neo4j_password")
         )
 
         DatabaseType.SQLite -> SQLite(System.getProperty("sqlite_path"), System.getProperty("max_string_len").toUInt())
@@ -80,6 +80,11 @@ object Controller {
         private var treeName: String
         var viewCoordinates = Pair(0F, 0F)
 
+        var startCoordinate = Pair(0F, 0F) //coordinates of the root node
+
+        var xMinInterval = 4F //interval between nodes
+        var yInterval = 4F //interval between nodes
+
         constructor(treeName: String, databaseType: DatabaseType) {
             this.treeName = treeName
             val treeData = getDatabase(databaseType).readTree(treeName)
@@ -103,11 +108,6 @@ object Controller {
             }
 
         private fun rewriteAllCoordinates() {
-            val startCoordinate = Pair(0F, 0F) //coordinates of the root node
-
-            val xMinInterval = 4F //interval between nodes
-            val yInterval = 4F
-
             fun offsetOnLevel(level: Int, height: Int) =
                 ((height - 2) * xMinInterval * (0.5.pow(level) - 1) * (-2)).toFloat() //the sum of the terms of the geometric progression
 
