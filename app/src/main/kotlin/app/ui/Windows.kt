@@ -1,7 +1,8 @@
-package app
+package app.ui
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.awt.ComposeWindow
+import app.controller.Controller
 
 
 sealed class Screen {
@@ -26,19 +27,19 @@ fun Main(window: ComposeWindow) {
 
         is Screen.CreatNewWindow ->
             CreatNewTree(
-                onBack = {screenState = Screen.MainWindow},
+                onBack = {screenState = Screen.MainWindow },
                 onClick = { screenState = Screen.TreeWindow(tree = it) }
             )
 
         is Screen.OpenTree ->
             OpenTree(
-                onBack = {screenState = Screen.MainWindow},
+                onBack = {screenState = Screen.MainWindow },
                 onClick = { screenState = Screen.TreeWindow(tree = it) }
             )
 
         is Screen.TreeWindow ->
             Tree(
-                onBack = {screenState = Screen.MainWindow},
+                onBack = {screenState = Screen.MainWindow },
                 tree = screen.tree
             )
     }

@@ -1,4 +1,4 @@
-package app
+package app.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.DropdownMenu
@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.controller.Controller
 
 @Composable
 fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {

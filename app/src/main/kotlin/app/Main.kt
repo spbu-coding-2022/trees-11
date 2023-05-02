@@ -1,11 +1,12 @@
 package app
 
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import UIT.AppTheme
-import androidx.compose.ui.res.painterResource
+import app.theme.AppTheme
+import app.ui.Main
 
 
 fun main() = application {

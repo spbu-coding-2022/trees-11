@@ -1,4 +1,4 @@
-package app
+package app.ui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import app.controller.Controller
 import kotlin.math.roundToInt
 
 open class ViewTree {

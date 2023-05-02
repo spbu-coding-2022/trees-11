@@ -1,4 +1,4 @@
-package app
+package app.controller
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +59,7 @@ object Controller {
     }
 
     fun getTree(treeType: TreeType, keysType: KeysType) = when(keysType) {
-        KeysType.Int -> Controller.getTree<Int>(treeType)
+        KeysType.Int -> getTree<Int>(treeType)
         else -> throw IllegalArgumentException("Only Int support now")
     }
 
