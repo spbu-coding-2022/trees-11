@@ -83,8 +83,9 @@ object Controller {
 
         var startCoordinate = Pair(0F, 0F) //coordinates of the root node
 
-        var xMinInterval = 4F //interval between nodes
-        var yInterval = 4F //interval between nodes
+        var xMinInterval = 100F //interval between nodes
+        var yInterval = -100F //interval between nodes
+        var content = mutableStateOf(listOf<DrawNode>())
 
         constructor(treeName: String, databaseType: DatabaseType) {
             this.treeName = treeName
@@ -117,6 +118,10 @@ object Controller {
             }
 
             return listOfDrawNodes
+        }
+
+        fun reInitAllDrawNodes(){
+            content.value = getAllDrawNodes()
         }
 
         private fun rewriteAllCoordinates() {
