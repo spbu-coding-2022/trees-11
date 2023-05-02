@@ -70,7 +70,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Box {
+                Box(modifier = Modifier.weight(0.3f)) {
                     val expanded = remember { mutableStateOf(false) }
 
                     Button(
@@ -78,7 +78,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                             expanded.value = true
                         },
                         shape = MaterialTheme.shapes.extraLarge,
-                        modifier = Modifier.height(57.dp),
+                        modifier = Modifier.fillMaxWidth().height(57.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = md_theme_light_primary
                         )
@@ -93,7 +93,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                         onDismissRequest = { expanded.value = false }
                     ) {
                         DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.BSTree; expanded.value = false }) {
-                            Text("binary search tree")
+                            Text("Binary search tree")
                         }
                         Divider()
                         DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.AVLTree; expanded.value = false }) {
@@ -101,14 +101,14 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                         }
                         Divider()
                         DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.RBTree; expanded.value = false }) {
-                            Text("red-black tree")
+                            Text("Red-black tree")
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Box {
+                Box(modifier = Modifier.weight(0.3f)) {
                     val expanded = remember { mutableStateOf(false) }
 
                     Button(
@@ -116,7 +116,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                             expanded.value = true
                         },
                         shape = MaterialTheme.shapes.extraLarge,
-                        modifier = Modifier.height(57.dp),
+                        modifier = Modifier.fillMaxWidth().height(57.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = md_theme_light_primary
                         )
