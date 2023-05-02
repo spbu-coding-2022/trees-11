@@ -120,12 +120,12 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         executeQuery("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName')-[:next*]->(node) DETACH DELETE node, tree")
     }
 
-    override fun getAllTrees(): List<Pair<String, String>> {
-        val list = mutableListOf<Pair<String, String>>()
+    override fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>> {
+        val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
         session.executeRead { tx ->
-            val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type")
+            val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type, tree.viewX AS x, tree.viewY AS y")
             result.stream().forEach {
-                list.add(Pair(it["name"].asString(), it["type"].asString()))
+                list.add(Triple(it["name"].asString(), it["type"].asString(), Pair(it["x"].asFloat(), it["y"].asFloat())))
             }
         }
         return list

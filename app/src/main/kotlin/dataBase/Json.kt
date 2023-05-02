@@ -71,11 +71,11 @@ class Json(private val saveDirPath: String) : DataBase {
         }
     }
 
-    override fun getAllTrees(): List<Pair<String, String>> {
-        val list = mutableListOf<Pair<String, String>>()
+    override fun getAllTrees(): MutableList<Triple<String, String, Pair<Float, Float>>> {
+        val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
         forAllJsonFile {
             list.add(
-                mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
+                mapper.readValue<Pair<Triple<String, String, Pair<Float, Float>>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
                     it
                 ).first
             )

@@ -33,7 +33,7 @@ interface DataBase {
     )
     fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>>
     fun removeTree(treeName: String)
-    fun getAllTrees(): List<Pair<String, String>>
+    fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>>
     fun clean()
     fun close()
     fun cleanAndClose() {

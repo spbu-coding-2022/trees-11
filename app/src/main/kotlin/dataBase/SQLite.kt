@@ -18,8 +18,11 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
     }
         ?: throw SQLException("Cannot connect to database\nCheck that it is running and that there is no error in the path to it")
     private val addTreeStatement by lazy { connection.prepareStatement("INSERT INTO trees (name, type, viewX, viewY) VALUES (?, ?, ?, ?);") }
-    private val getAllTreesStatement by lazy { connection.prepareStatement("SELECT trees.name as name, trees.type as type FROM trees;") }
+    private val getAllTreesStatement by lazy { connection.prepareStatement("SELECT trees.name as name, trees.type as type, trees.viewX as x, trees.viewY as y FROM trees;") }
 
+    init {
+        createTreesTable()
+    }
 
     override fun saveTree(
         treeName: String,
@@ -29,7 +32,6 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
-        createTreesTable()
         removeTree(treeName)
         createTableForTree(treeName)
         addTree(
@@ -169,11 +171,17 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         executeQuery("DELETE FROM trees WHERE name = '$treeName';")
     }
 
-    override fun getAllTrees(): List<Pair<String, String>> {
-        val list = mutableListOf<Pair<String, String>>()
+    override fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>> {
+        val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
         val treesSet = getAllTreesStatement.executeQuery()
         while (treesSet.next()) {
-            list.add(Pair(treesSet.getString("name"), treesSet.getString("type")))
+            list.add(
+                Triple(
+                    treesSet.getString("name"),
+                    treesSet.getString("type"),
+                    Pair(treesSet.getFloat("x"), treesSet.getFloat("y"))
+                )
+            )
         }
 
         return list
