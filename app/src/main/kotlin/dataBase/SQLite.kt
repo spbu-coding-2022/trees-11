@@ -1,6 +1,7 @@
 package dataBase
 
 import trees.BinTree
+import java.io.File
 import java.io.IOException
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -21,6 +22,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
     private val getAllTreesStatement by lazy { connection.prepareStatement("SELECT trees.name as name, trees.type as type, trees.viewX as x, trees.viewY as y FROM trees;") }
 
     init {
+        File(dbPath).mkdirs()
         createTreesTable()
     }
 
