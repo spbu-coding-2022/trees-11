@@ -1,6 +1,5 @@
 package app
 
-import UIT.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,154 +16,152 @@ import androidx.compose.ui.zIndex
 
 @Composable
 fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
-    var files = remember { mutableStateOf(mutableStateListOf<Triple<String, String, Pair<Float, Float>>>()) }
+    val files = remember { mutableStateOf(mutableStateListOf<Triple<String, String, Pair<Float, Float>>>()) }
     var dataBaseType = Controller.DatabaseType.Json
-    MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp),
-            verticalArrangement = Arrangement.aligned(Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp),
+        verticalArrangement = Arrangement.aligned(Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(
-                    onClick = onBack,
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "Exit",
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = {
-                        files.value =
-                            Controller.Database(Controller.DatabaseType.Json).getAllTrees().toMutableStateList()
-                        dataBaseType = Controller.DatabaseType.Json
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "Json",
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {
-                        files.value =
-                            Controller.Database(Controller.DatabaseType.SQLite).getAllTrees().toMutableStateList()
-                        dataBaseType = Controller.DatabaseType.SQLite
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "SQLite",
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {
-                        files.value =
-                            Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees().toMutableStateList()
-                        dataBaseType = Controller.DatabaseType.Neo4j
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "Neo4j",
-                    )
-                }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = onBack,
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.3f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = "Exit",
+                )
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (files.value.isNotEmpty()) {
-
-                Button(
-                    onClick = {
-                        Controller.Database(dataBaseType).clean()
-                        files.value = mutableStateListOf()
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.height(50.dp).fillMaxWidth(0.95f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_negative_primary
-                    )
-                ) {
-                    Text("delete all trees saved in $dataBaseType")
-                }
-                Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(
+                onClick = {
+                    files.value =
+                        Controller.Database(Controller.DatabaseType.Json).getAllTrees().toMutableStateList()
+                    dataBaseType = Controller.DatabaseType.Json
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.3f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = "Json",
+                )
             }
+            Spacer(modifier = Modifier.width(16.dp))
 
-            LazyColumn {
-                items(files.value) { file ->
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Box(
-                        modifier = Modifier.fillMaxWidth(0.95f)
-                            .zIndex(0f)
-                            .border(4.dp, md_theme_light_border, RoundedCornerShape(20.dp))
+            Button(
+                onClick = {
+                    files.value =
+                        Controller.Database(Controller.DatabaseType.SQLite).getAllTrees().toMutableStateList()
+                    dataBaseType = Controller.DatabaseType.SQLite
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.3f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = "SQLite",
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Button(
+                onClick = {
+                    files.value =
+                        Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees().toMutableStateList()
+                    dataBaseType = Controller.DatabaseType.Neo4j
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.weight(0.3f).height(57.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = "Neo4j",
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        if (files.value.isNotEmpty()) {
+
+            Button(
+                onClick = {
+                    Controller.Database(dataBaseType).clean()
+                    files.value = mutableStateListOf()
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.height(50.dp).fillMaxWidth(0.95f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Text("delete all trees saved in $dataBaseType")
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        LazyColumn {
+            items(files.value) { file ->
+                Spacer(modifier = Modifier.width(20.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(0.95f)
+                        .zIndex(0f)
+                        .border(4.dp, MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize()
+                            .zIndex(1f),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize()
-                                .zIndex(1f),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Button(
+                            onClick = {
+                                onClick(Controller.DrawTree(file.first, dataBaseType))
+                            },
+                            shape = MaterialTheme.shapes.extraLarge,
+                            modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
                         ) {
-                            Button(
-                                onClick = {
-                                    onClick(Controller.DrawTree(file.first, dataBaseType))
-                                },
-                                shape = MaterialTheme.shapes.extraLarge,
-                                modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = md_theme_light_primary
-                                )
-                            ) {
-                                Text("Open")
-                            }
+                            Text("Open")
+                        }
 
-                            Text(
-                                modifier = Modifier.weight(6f),
-                                textAlign = TextAlign.Center,
-                                text = "name: \"${file.first}\""
-                            )
-                            Text(
-                                modifier = Modifier.weight(3f),
-                                textAlign = TextAlign.Center,
-                                text = file.second
-                            )
+                        Text(
+                            modifier = Modifier.weight(6f),
+                            textAlign = TextAlign.Center,
+                            text = "name: \"${file.first}\""
+                        )
+                        Text(
+                            modifier = Modifier.weight(3f),
+                            textAlign = TextAlign.Center,
+                            text = file.second
+                        )
 
-                            Button(
-                                onClick = {
-                                    Controller.Database(dataBaseType).removeTree(file.first)
-                                    files.value.remove(file)
-                                },
-                                shape = MaterialTheme.shapes.extraLarge,
-                                modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = md_theme_light_negative_primary
-                                )
-                            ) {
-                                Text("Delete")
-                            }
+                        Button(
+                            onClick = {
+                                Controller.Database(dataBaseType).removeTree(file.first)
+                                files.value.remove(file)
+                            },
+                            shape = MaterialTheme.shapes.extraLarge,
+                            modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        ) {
+                            Text("Delete")
                         }
                     }
                 }

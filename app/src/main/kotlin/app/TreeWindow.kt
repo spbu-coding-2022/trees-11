@@ -1,7 +1,5 @@
 package app
 
-import UIT.md_theme_light_negative_primary
-import UIT.md_theme_light_primary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
@@ -24,173 +22,171 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
 
     tree.reInitAllDrawNodes()
 
-    MaterialTheme {
-        Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
-            Column(
-                modifier = Modifier.padding(start = 32.dp, top = 16.dp).width(400.dp)
+    Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
+        Column(
+            modifier = Modifier.padding(start = 32.dp, top = 16.dp).width(400.dp)
+        ) {
+            Insert(
+                onClick = { key, value ->
+                    if ((key != "") && (value != "")) {
+                        tree.drawInsert(key, value)
+                        tree.reInitAllDrawNodes()
+                        textForUser = "I insert node with key: $key and value: $value :)"
+                    } else {
+                        textForUser = "Give me key and value pls :("
+                    }
+                }
+            )
+            Remove(
+                onClick = { key ->
+                    if (key != "") {
+                        tree.drawRemove(key)
+                        tree.reInitAllDrawNodes()
+                        textForUser = "I remove node :)"
+                    } else {
+                        textForUser = "Give me key pls :("
+                    }
+                }
+            )
+            Find(
+                onClick = { key ->
+                    val value = tree.drawFind(key)
+                    if (value != null) {
+                        textForUser = "Result: $value"
+                    } else {
+                        textForUser = "Ooops... I can't find node :("
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            Text(
+                text = textForUser,
+                modifier = Modifier.padding(start = 32.dp, top = 16.dp),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Spacer(modifier = Modifier.height(40.dp))
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.aligned(Alignment.End)
             ) {
-                Insert(
-                    onClick = { key, value ->
-                        if ((key != "") && (value != "")) {
-                            tree.drawInsert(key, value)
-                            tree.reInitAllDrawNodes()
-                            textForUser = "I insert node with key: $key and value: $value :)"
-                        } else {
-                            textForUser = "Give me key and value pls :("
-                        }
-                    }
+                Button(
+                    onClick = onBack,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier = Modifier.weight(0.3f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Text(
+                        text = "Exit",
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = {
+                        openDialog.value = true
+                    },
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier = Modifier.weight(0.3f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = "Save",
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Button(
+                onClick = {
+                    offSetX.value = 0f
+                    offSetY.value = 0f
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.width(400.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
-                Remove(
-                    onClick = { key ->
-                        if (key != "") {
-                            tree.drawRemove(key)
-                            tree.reInitAllDrawNodes()
-                            textForUser = "I remove node :)"
-                        } else {
-                            textForUser = "Give me key pls :("
-                        }
-                    }
-                )
-                Find(
-                    onClick = { key ->
-                        val value = tree.drawFind(key)
-                        if (value != null) {
-                            textForUser = "Result: $value"
-                        } else {
-                            textForUser = "Ooops... I can't find node :("
-                        }
-                    }
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = textForUser,
-                    modifier = Modifier.padding(start = 32.dp, top = 16.dp),
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Spacer(modifier = Modifier.height(40.dp))
+            ) {
+                Text("go to tree Root!")
+            }
+        }
+        ViewTree().drawTree(tree, offSetX, offSetY)
+    }
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            title = {
+                Text(text = "How do you want to save this tree?")
+            },
+            text = {
+                Text("Select the database to save:")
+            },
+            buttons = {
                 Row(
-                    modifier = Modifier,
+                    modifier = Modifier.padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.aligned(Alignment.End)
+                    horizontalArrangement = Arrangement.aligned(Alignment.CenterHorizontally)
                 ) {
                     Button(
-                        onClick = onBack,
+                        onClick = { openDialog.value = false },
                         shape = MaterialTheme.shapes.extraLarge,
-                        modifier = Modifier.weight(0.3f),
+                        modifier = Modifier.weight(0.3f).height(57.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = md_theme_light_negative_primary
+                            containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text(
-                            text = "Exit",
-                        )
+                        Text("Exit")
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            openDialog.value = true
+                            tree.saveToDB(Controller.DatabaseType.Json)
+                            openDialog.value = false
                         },
                         shape = MaterialTheme.shapes.extraLarge,
-                        modifier = Modifier.weight(0.3f),
+                        modifier = Modifier.weight(0.3f).height(57.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = md_theme_light_primary
+                            containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text(
-                            text = "Save",
-                        )
+                        Text("Json")
                     }
-                }
-                Spacer(modifier = Modifier.height(15.dp))
-                Button(
-                    onClick = {
-                        offSetX.value = 0f
-                        offSetY.value = 0f
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.width(400.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text("go to tree Root!")
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = {
+                            tree.saveToDB(Controller.DatabaseType.SQLite)
+                            openDialog.value = false
+                        },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        modifier = Modifier.weight(0.3f).height(57.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("SQLite")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = {
+                            tree.saveToDB(Controller.DatabaseType.Neo4j)
+                            openDialog.value = false
+                        },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        modifier = Modifier.weight(0.3f).height(57.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Neo4j")
+                    }
                 }
             }
-            ViewTree().drawTree(tree, offSetX, offSetY)
-        }
-        if (openDialog.value) {
-            AlertDialog(
-                onDismissRequest = { openDialog.value = false },
-                title = {
-                    Text(text = "How do you want to save this tree?")
-                },
-                text = {
-                    Text("Select the database to save:")
-                },
-                buttons = {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.aligned(Alignment.CenterHorizontally)
-                    ) {
-                        Button(
-                            onClick = { openDialog.value = false },
-                            shape = MaterialTheme.shapes.extraLarge,
-                            modifier = Modifier.weight(0.3f).height(57.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = md_theme_light_primary
-                            )
-                        ) {
-                            Text("Exit")
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Button(
-                            onClick = {
-                                tree.saveToDB(Controller.DatabaseType.Json)
-                                openDialog.value = false
-                            },
-                            shape = MaterialTheme.shapes.extraLarge,
-                            modifier = Modifier.weight(0.3f).height(57.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = md_theme_light_primary
-                            )
-                        ) {
-                            Text("Json")
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Button(
-                            onClick = {
-                                tree.saveToDB(Controller.DatabaseType.SQLite)
-                                openDialog.value = false
-                            },
-                            shape = MaterialTheme.shapes.extraLarge,
-                            modifier = Modifier.weight(0.3f).height(57.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = md_theme_light_primary
-                            )
-                        ) {
-                            Text("SQLite")
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Button(
-                            onClick = {
-                                tree.saveToDB(Controller.DatabaseType.Neo4j)
-                                openDialog.value = false
-                            },
-                            shape = MaterialTheme.shapes.extraLarge,
-                            modifier = Modifier.weight(0.3f).height(57.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = md_theme_light_primary
-                            )
-                        ) {
-                            Text("Neo4j")
-                        }
-                    }
-                }
-            )
-        }
+        )
     }
 }
 
@@ -237,7 +233,7 @@ fun Insert(onClick: (key: String, value: String) -> Unit) {
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.30f).height(57.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = md_theme_light_primary
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text("go!")
@@ -275,7 +271,7 @@ fun Remove(onClick: (key: String) -> Unit) {
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.30f).height(57.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = md_theme_light_primary
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text("go!")
@@ -312,7 +308,7 @@ fun Find(onClick: (key: String) -> Unit) {
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.30f).height(57.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = md_theme_light_primary
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text("go!")
