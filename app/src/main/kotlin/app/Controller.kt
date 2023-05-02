@@ -25,6 +25,12 @@ object Controller {
         BSTree
     }
 
+    enum class KeysType {
+        Int,
+        Float,
+        String
+    }
+
     enum class DatabaseType {
         Json,
         Neo4j,

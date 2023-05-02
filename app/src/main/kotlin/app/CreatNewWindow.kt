@@ -2,6 +2,8 @@ package app
 
 import UIT.md_theme_light_primary
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,18 +13,17 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
     var name by remember { mutableStateOf("") }
-    val inputError = remember { mutableStateOf(false) }
     val error: MutableState<String?> = remember { mutableStateOf(null) }
+    val treeType = remember { mutableStateOf(Controller.TreeType.BSTree) }
+    val keysType = remember { mutableStateOf(Controller.KeysType.Int) }
 
     fun isNameValid() {
         try {
             Controller.validateName(name)
         } catch (ex: Exception) {
-            inputError.value = true
             error.value = ex.message
             return
         }
-        inputError.value = false
         error.value = null
     }
 
@@ -35,9 +36,9 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { isNameValid(); name = it },
+                    onValueChange = {  name = it; isNameValid(); },
                     label = { Text(text = "name") },
-                    isError = inputError.value,
+                    isError = error.value != null,
                     singleLine = true,
                     modifier = Modifier.weight(0.70f),
                     shape = MaterialTheme.shapes.extraLarge,
@@ -52,7 +53,9 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
 
             Spacer(modifier = Modifier.height(15.dp))
+
             Row(verticalAlignment = Alignment.CenterVertically) {
+
                 Button(
                     onClick = onBack,
                     shape = MaterialTheme.shapes.extraLarge,
@@ -67,43 +70,84 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Button(
-                    onClick = {
-                        val tree = Controller.DrawTree(name, Controller.TreeType.BSTree)
-                        name = ""
-                        onClick(tree)
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "BSTree",
-                    )
+                Box {
+                    val expanded = remember { mutableStateOf(false) }
+
+                    Button(
+                        onClick = {
+                            expanded.value = true
+                        },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        modifier = Modifier.height(57.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = md_theme_light_primary
+                        )
+                    ) {
+                        Text(
+                            text = treeType.value.toString(),
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+                        DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.BSTree; expanded.value = false }) {
+                            Text("binary search tree")
+                        }
+                        Divider()
+                        DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.AVLTree; expanded.value = false }) {
+                            Text("AVL tree")
+                        }
+                        Divider()
+                        DropdownMenuItem(onClick = { treeType.value = Controller.TreeType.RBTree; expanded.value = false }) {
+                            Text("red-black tree")
+                        }
+                    }
                 }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box {
+                    val expanded = remember { mutableStateOf(false) }
+
+                    Button(
+                        onClick = {
+                            expanded.value = true
+                        },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        modifier = Modifier.height(57.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = md_theme_light_primary
+                        )
+                    ) {
+                        Text(
+                            text = keysType.value.toString(),
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+                        DropdownMenuItem(onClick = { keysType.value = Controller.KeysType.Int; expanded.value = false }) {
+                            Text("Int keys")
+                        }
+                        Divider()
+                        DropdownMenuItem(onClick = { keysType.value = Controller.KeysType.Float; expanded.value = false }) {
+                            Text("Float keys")
+                        }
+                        Divider()
+                        DropdownMenuItem(onClick = { keysType.value = Controller.KeysType.String; expanded.value = false }) {
+                            Text("String keys")
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
-                    onClick = {
-                        val tree = Controller.DrawTree(name, Controller.TreeType.AVLTree)
-                        name = ""
-                        onClick(tree)
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.weight(0.3f).height(57.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = md_theme_light_primary
-                    )
-                ) {
-                    Text(
-                        text = "AVLTree",
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
+                    enabled = error.value == null && name.isNotEmpty(),
                     onClick = {
                         val tree = Controller.DrawTree(name, Controller.TreeType.RBTree)
                         name = ""
@@ -116,7 +160,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     )
                 ) {
                     Text(
-                        text = "RBTree",
+                        text = "Create",
                     )
                 }
             }
