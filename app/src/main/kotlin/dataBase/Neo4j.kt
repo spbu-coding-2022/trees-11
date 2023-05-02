@@ -44,11 +44,29 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         validateName(treeName)
 
         removeTree(treeName)
-        executeQuery("CREATE (:Tree {name: '$treeName', type: '${tree::class.simpleName}', " +
-                "viewX: ${viewCoordinates.first}, viewY: ${viewCoordinates.second}})")
+        addTreeNode(treeName, tree, viewCoordinates)
         var prevKey: Int? = null
         tree.getKeyValueList()
             .forEach { saveNode(it.first, it.second.first, it.second.second, prevKey, treeName); prevKey = it.first }
+    }
+
+    private fun addTreeNode(
+        treeName: String,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
+        coordinates: Pair<Float, Float>
+    ) {
+        session.executeWrite { tx ->
+            tx.run(
+                "CREATE (:Tree {name: \$name, type: \$type, " +
+                        "viewX: \$x, viewY: \$y})",
+                mutableMapOf(
+                    "name" to treeName,
+                    "type" to tree::class.simpleName,
+                    "x" to coordinates.first,
+                    "y" to coordinates.second
+                ) as Map<String, Any>
+            )
+        }
     }
 
     private fun saveNode(
@@ -60,7 +78,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     ) {
         session.executeWrite { tx ->
             tx.run(
-                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "Tree WHERE prevNode.name = '$treeName'" else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
+                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "Tree WHERE prevNode.name = '$treeName'" else "${treeName}Node WHERE prevNode.key = $prevKey"})  " +
                         "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
                 mutableMapOf(
                     "key" to key,
