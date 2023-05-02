@@ -71,8 +71,10 @@ object Controller {
     open class DrawNode(
         var key: String,
         var value: String,
-        var coordinates: MutableState<Pair<Float, Float>>,
-        var prevCoordinates: MutableState<Pair<Float, Float>?>
+        var x: Float,
+        var y: Float,
+        var prevX: Float?,
+        var prevY: Float?
     )
 
     class DrawTree {
@@ -102,8 +104,10 @@ object Controller {
                 DrawNode(
                     data.first,
                     data.second.first,
-                    mutableStateOf(data.second.second),
-                    mutableStateOf(data.third?.second)
+                    data.second.second.first,
+                    data.second.second.second,
+                    data.third?.second?.first,
+                    data.third?.second?.second
                 )
             }
 
@@ -143,7 +147,7 @@ object Controller {
         fun drawFind(key: String) = tree.get(key)?.first
 
         fun updateCoordinate(node: DrawNode) {
-            tree.insert(node.key, Pair(node.value, node.coordinates.value))
+            tree.insert(node.key, Pair(node.value, Pair(node.x, node.y)))
         }
 
         fun saveToDB(databaseType: DatabaseType) {
