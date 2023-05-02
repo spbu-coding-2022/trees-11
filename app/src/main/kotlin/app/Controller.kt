@@ -34,12 +34,12 @@ object Controller {
     fun validateName(name: String) {
         for (i in name)
             if (i !in 'a'..'z' && i !in 'A'..'Z' && i !in '0'..'9')
-                throw IllegalArgumentException("Unsupported tree name, please use only ascii letters or digits")
-        if (name[0] in '0'..'9')
-            throw IllegalArgumentException("Unsupported tree name, please don't use a digit as the first char")
+                throw IllegalArgumentException("Please use only ascii letters or digits")
+        if (name.isNotEmpty() && name[0] in '0'..'9')
+            throw IllegalArgumentException("Please don't use a digit as the first char")
         if (name.length !in 1..System.getProperty("max_string_len")
                 .toInt()
-        ) throw IllegalArgumentException("Incorrect tree name\nThe name must be less than ${System.getProperty("max_string_len")} and greater than 0")
+        ) throw IllegalArgumentException("The name must be less than ${System.getProperty("max_string_len")} and greater than 0")
     }
 
     fun getTree(treeType: TreeType) = when (treeType) {
@@ -73,7 +73,7 @@ object Controller {
         var value: String,
         var x: MutableState<Float>,
         var y: MutableState<Float>,
-        var prevX:  MutableState<Float?>,
+        var prevX: MutableState<Float?>,
         var prevY: MutableState<Float?>
     )
 
