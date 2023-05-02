@@ -16,6 +16,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     init {
         try {
             driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
+            driver.verifyConnectivity()
             session = driver.session()
         } catch (ex: Exception) {
             throw IOException("can't start session, try to change uri, user name or password\n$ex")
