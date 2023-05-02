@@ -1,27 +1,20 @@
 package app
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -32,67 +25,89 @@ import kotlin.math.roundToInt
 open class ViewTree {
 
     @Composable
-    open fun drawTree(tree: Controller.DrawTree ) {
-        tree.getAllDrawNodes().forEach { node ->
-            drawNode(node.key, node.coordinates)}
-//            node.prevCoordinates.value?.let {
-//                drawLine(node.coordinates, node.prevCoordinates)
-//            }
-//        }
-    }
-
-    @Composable
-    fun drawNode(
-        key: String,
-        coordinates: MutableState<Pair<Float, Float>>
+    open fun drawTree(
+        tree: Controller.DrawTree,
     ) {
-
-        val offsetX = remember { mutableStateOf(coordinates.value.first) }
-        val offsetY = remember { mutableStateOf(coordinates.value.second) }
-
-        Box(
+        Box(contentAlignment = Alignment.TopCenter,
             modifier = Modifier
-                .offset {
-                    IntOffset(
-                        x = offsetX.value.roundToInt(),
-                        y = offsetY.value.roundToInt()
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectDragGestures { _, dragAmount ->
-                        offsetX.value += dragAmount.x
-                        offsetY.value += dragAmount.y
-                        //coordinates.value = Pair(offsetX.value, offsetY.value)
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .clipToBounds()
+                .padding(top = 15.dp)
+        ) {
+            Box(modifier = Modifier.size(50.dp)) {
+                tree.content.value.forEach() { node ->
+                    drawNode(node, 50)
+                    node.parent?.let {
+                        drawLine(node, it, 50)
                     }
                 }
-                .size(60.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
-                .onGloballyPositioned { layoutCoordinates ->
-                    val rect = layoutCoordinates.boundsInParent()
-                    coordinates.value = Pair(rect.center.x, rect.center.y)
+            }
+        }
+    }
+
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun drawNode(
+        node: Controller.DrawNode,
+        size: Int,
+    ) {
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            TooltipArea(
+                tooltip = {
+                    Surface {
+                        Text(
+                            text = "value: ${node.value} \nx: ${node.x.value} \ny: ${node.y.value}"
+                        )
+                    }
                 },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = key,
-                fontSize = 20.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = node.x.value.roundToInt(),
+                            y = node.y.value.roundToInt(),
+                        )
+                    }
+                    .pointerInput(node.x, node.y) {
+                        detectDragGestures { _, dragAmount ->
+                            node.x.value += dragAmount.x
+                            node.y.value += dragAmount.y
+                        }
+                    }
+
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(size.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(
+                        text = node.key,
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
         }
     }
 
     @Composable
-    fun drawLine(coordinates:MutableState<Pair<Float, Float>>, prevCoordinates: MutableState<Pair<Float, Float>>) {
+    fun drawLine(
+        node: Controller.DrawNode, parent : Controller.DrawNode, size: Int = 50
+    ) {
         Canvas(modifier = Modifier.fillMaxSize().zIndex(-1f)) {
             drawLine(
                 color = Color.DarkGray,
-                start = Offset(coordinates.value.first,coordinates.value.second),
-                end = Offset(prevCoordinates.value.first, prevCoordinates.value.second),
-                strokeWidth = 5f
+                start = Offset(node.x.value + size/2, node.y.value + size/2),
+                end = Offset(parent.x.value + size/2, parent.y.value + size/2),
+                strokeWidth = 3f
             )
         }
     }
 }
-
