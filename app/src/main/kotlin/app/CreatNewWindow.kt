@@ -112,6 +112,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     val expanded = remember { mutableStateOf(false) }
 
                     Button(
+                        enabled = false,
                         onClick = {
                             expanded.value = true
                         },
@@ -149,7 +150,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 Button(
                     enabled = error.value == null && name.isNotEmpty(),
                     onClick = {
-                        val tree = Controller.DrawTree(name, Controller.TreeType.RBTree)
+                        val tree = Controller.DrawTree(name, Controller.TreeType.RBTree, keysType.value)
                         name = ""
                         onClick(tree)
                     },
