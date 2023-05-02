@@ -17,10 +17,11 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
     var textForUser by remember { mutableStateOf("") }
     val openDialog = remember { mutableStateOf(false) }
 
-    val offSetX = remember { mutableStateOf(0f) }
-    val offSetY = remember { mutableStateOf(0f) }
+    val offSetX = remember { mutableStateOf(tree.viewCoordinates.first) }
+    val offSetY = remember { mutableStateOf(tree.viewCoordinates.second) }
 
     tree.reInitAllDrawNodes()
+    tree.viewCoordinates = Pair(offSetX.value, offSetY.value)
 
     Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
         Column(
@@ -28,12 +29,14 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
         ) {
             Insert(
                 onClick = { key, value ->
-                    if ((key != "") && (value != "")) {
+                    if (!Controller.validKey(key)) {
+                        textForUser = "Oops.. it's not Int, bro"
+                    } else if (key != "") {
                         tree.drawInsert(key, value)
                         tree.reInitAllDrawNodes()
                         textForUser = "I insert node with key: $key and value: $value :)"
                     } else {
-                        textForUser = "Give me key and value pls :("
+                        textForUser = "Give me key pls :("
                     }
                 }
             )
@@ -316,4 +319,3 @@ fun Find(onClick: (key: String) -> Unit) {
         }
     }
 }
-

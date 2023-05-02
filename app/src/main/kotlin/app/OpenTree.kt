@@ -17,7 +17,7 @@ import androidx.compose.ui.zIndex
 @Composable
 fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
     val files = remember { mutableStateOf(mutableStateListOf<Triple<String, String, Pair<Float, Float>>>()) }
-    var dataBaseType = Controller.DatabaseType.Json
+    val dataBaseType = remember { mutableStateOf(Controller.DatabaseType.Json) }
     Column(
         modifier = Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp),
         verticalArrangement = Arrangement.aligned(Alignment.CenterVertically),
@@ -42,7 +42,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 onClick = {
                     files.value =
                         Controller.Database(Controller.DatabaseType.Json).getAllTrees().toMutableStateList()
-                    dataBaseType = Controller.DatabaseType.Json
+                    dataBaseType.value = Controller.DatabaseType.Json
                 },
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.3f).height(57.dp),
@@ -60,7 +60,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 onClick = {
                     files.value =
                         Controller.Database(Controller.DatabaseType.SQLite).getAllTrees().toMutableStateList()
-                    dataBaseType = Controller.DatabaseType.SQLite
+                    dataBaseType.value = Controller.DatabaseType.SQLite
                 },
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.3f).height(57.dp),
@@ -78,7 +78,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 onClick = {
                     files.value =
                         Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees().toMutableStateList()
-                    dataBaseType = Controller.DatabaseType.Neo4j
+                    dataBaseType.value = Controller.DatabaseType.Neo4j
                 },
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.weight(0.3f).height(57.dp),
@@ -98,7 +98,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
             Button(
                 onClick = {
-                    Controller.Database(dataBaseType).clean()
+                    Controller.Database(dataBaseType.value).clean()
                     files.value = mutableStateListOf()
                 },
                 shape = MaterialTheme.shapes.extraLarge,
@@ -107,7 +107,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     containerColor = MaterialTheme.colorScheme.onErrorContainer
                 )
             ) {
-                Text("delete all trees saved in $dataBaseType")
+                Text("delete all trees saved in ${dataBaseType.value}")
             }
             Spacer(modifier = Modifier.height(10.dp))
         }
@@ -128,7 +128,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     ) {
                         Button(
                             onClick = {
-                                onClick(Controller.DrawTree(file.first, dataBaseType))
+                                onClick(Controller.DrawTree(file.first, dataBaseType.value))
                             },
                             shape = MaterialTheme.shapes.extraLarge,
                             modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
@@ -152,7 +152,7 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                         Button(
                             onClick = {
-                                Controller.Database(dataBaseType).removeTree(file.first)
+                                Controller.Database(dataBaseType.value).removeTree(file.first)
                                 files.value.remove(file)
                             },
                             shape = MaterialTheme.shapes.extraLarge,
