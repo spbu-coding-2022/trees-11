@@ -1,5 +1,6 @@
 package app
 
+import UIT.md_theme_light_negative_primary
 import UIT.md_theme_light_primary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,8 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
 
     val offSetX = remember { mutableStateOf(0f) }
     val offSetY = remember { mutableStateOf(0f) }
+
+
     MaterialTheme {
         Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
             Column(
@@ -63,8 +66,9 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
                     modifier = Modifier.padding(start = 32.dp, top = 16.dp),
                     style = MaterialTheme.typography.headlineSmall,
                 )
+                Spacer(modifier = Modifier.height(40.dp))
                 Row(
-                    modifier = Modifier.height(570.dp),
+                    modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.aligned(Alignment.End)
                 ) {
@@ -73,7 +77,7 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
                         shape = MaterialTheme.shapes.extraLarge,
                         modifier = Modifier.weight(0.3f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = md_theme_light_primary
+                            containerColor = md_theme_light_negative_primary
                         )
                     ) {
                         Text(
@@ -95,6 +99,20 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
                             text = "Save",
                         )
                     }
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+                Button(
+                    onClick = {
+                        offSetX.value = 0f
+                        offSetY.value = 0f
+                    },
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier = Modifier.width(400.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = md_theme_light_primary
+                    )
+                ) {
+                    Text("go to tree Root!")
                 }
             }
             ViewTree().drawTree(tree, offSetX, offSetY)
