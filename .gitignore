@@ -1,5 +1,10 @@
-# CMake
-cmake-build-*/
+/.idea/
+
+/.gradle/
+
+build-logic/.gradle/
+
+**/build
 
 # File-based project format
 *.iws
@@ -15,9 +20,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
-### Intellij Patch ###
-# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
 ### Kotlin ###
 # Compiled class file
@@ -104,15 +106,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-/.idea/
-
-/.gradle/
-
-build-logic/build/
-
-build-logic/.gradle/
-
-lib/build/
-
-app/build/
