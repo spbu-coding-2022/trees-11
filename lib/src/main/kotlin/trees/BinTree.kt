@@ -228,9 +228,9 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
      * @return all key, value of all nodes in the tree with value of its parent (null if parent doesn't exist).
      * In order from left to right, by level.
      */
-    fun getNodesDataWithParentValue(): List<Triple<Key, Value, Value?>> {
-        val list = mutableListOf<Triple<Key, Value, Value?>>()
-        breadthFirstSearch { node -> if (node != null) list.add(Triple(node.key, node.value, node.parent?.value)) }
+    fun getNodesDataWithParentKeys(): MutableList<Triple<Key, Value, Key?>> {
+        val list = mutableListOf<Triple<Key, Value, Key?>>()
+        breadthFirstSearch { node -> if (node != null) list.add(Triple(node.key, node.value, node.parent?.key)) }
         return list
     }
 

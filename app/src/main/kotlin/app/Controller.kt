@@ -73,8 +73,7 @@ object Controller {
         var value: String,
         var x: MutableState<Float>,
         var y: MutableState<Float>,
-        var prevX: MutableState<Float?>,
-        var prevY: MutableState<Float?>
+        var parent: DrawNode?
     )
 
     class DrawTree {
@@ -99,17 +98,26 @@ object Controller {
             tree = getTree(treeType)
         }
 
-        fun getAllDrawNodes() =
-            tree.getNodesDataWithParentValue().map { data ->
-                DrawNode(
-                    data.first,
-                    data.second.first,
-                    mutableStateOf(data.second.second.first),
-                    mutableStateOf(data.second.second.second),
-                    mutableStateOf(data.third?.second?.first),
-                    mutableStateOf(data.third?.second?.second)
+        fun getAllDrawNodes(): MutableList<DrawNode> {
+            val listOfDrawNodes = mutableListOf<DrawNode>()
+            val mapOfKeysNodes = mutableMapOf<String?, MutableList<DrawNode>>()
+            for (i in tree.getNodesDataWithParentKeys().reversed()) {
+                val node = DrawNode(
+                    i.first,
+                    i.second.first,
+                    mutableStateOf(i.second.second.first),
+                    mutableStateOf(i.second.second.second),
+                    parent = null
                 )
+                listOfDrawNodes.add(node)
+                if (mapOfKeysNodes[i.third] == null)
+                    mapOfKeysNodes[i.third] = mutableListOf(node)
+                else mapOfKeysNodes[i.third]?.add(node)
+                mapOfKeysNodes[i.first]?.forEach { it.parent = node }
             }
+
+            return listOfDrawNodes
+        }
 
         private fun rewriteAllCoordinates() {
             fun offsetOnLevel(level: Int, height: Int) =
