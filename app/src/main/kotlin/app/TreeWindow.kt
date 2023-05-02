@@ -18,6 +18,8 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
     var textForUser by remember { mutableStateOf("") }
     val openDialog = remember { mutableStateOf(false) }
 
+    val offSetX = remember { mutableStateOf(0f) }
+    val offSetY = remember { mutableStateOf(0f) }
     MaterialTheme {
         Row(modifier = Modifier.fillMaxSize().background(Color.White).padding(6.dp)) {
             Column(
@@ -95,7 +97,7 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
                     }
                 }
             }
-            ViewTree().drawTree(tree)
+            ViewTree().drawTree(tree, offSetX, offSetY)
         }
         if (openDialog.value) {
             AlertDialog(

@@ -27,6 +27,8 @@ open class ViewTree {
     @Composable
     open fun drawTree(
         tree: Controller.DrawTree,
+        offSetX: MutableState<Float>,
+        offSetY: MutableState<Float>
     ) {
         Box(contentAlignment = Alignment.TopCenter,
             modifier = Modifier
@@ -34,12 +36,19 @@ open class ViewTree {
                 .fillMaxSize()
                 .clipToBounds()
                 .padding(top = 15.dp)
+                .pointerInput(offSetX, offSetY) {
+                    detectDragGestures { _, dragAmount ->
+                        offSetX.value += dragAmount.x
+                        offSetY.value += dragAmount.y
+                    }
+                }
+
         ) {
             Box(modifier = Modifier.size(50.dp)) {
                 tree.content.value.forEach() { node ->
-                    drawNode(node, 50)
+                    drawNode(node, 50, offSetX, offSetY)
                     node.parent?.let {
-                        drawLine(node, it, 50)
+                        drawLine(node, it, 50, offSetX, offSetY)
                     }
                 }
             }
@@ -52,6 +61,8 @@ open class ViewTree {
     fun drawNode(
         node: Controller.DrawNode,
         size: Int,
+        offSetX: MutableState<Float>,
+        offSetY: MutableState<Float>
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -66,8 +77,8 @@ open class ViewTree {
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            x = node.x.value.roundToInt(),
-                            y = node.y.value.roundToInt(),
+                            x = (node.x.value + offSetX.value).roundToInt(),
+                            y = (node.y.value + offSetY.value).roundToInt(),
                         )
                     }
                     .pointerInput(node.x, node.y) {
@@ -99,13 +110,17 @@ open class ViewTree {
 
     @Composable
     fun drawLine(
-        node: Controller.DrawNode, parent : Controller.DrawNode, size: Int = 50
+        node: Controller.DrawNode,
+        parent : Controller.DrawNode,
+        size: Int = 50,
+        offSetX: MutableState<Float>,
+        offSetY: MutableState<Float>
     ) {
         Canvas(modifier = Modifier.fillMaxSize().zIndex(-1f)) {
             drawLine(
                 color = Color.DarkGray,
-                start = Offset(node.x.value + size/2, node.y.value + size/2),
-                end = Offset(parent.x.value + size/2, parent.y.value + size/2),
+                start = Offset(node.x.value + size/2 + offSetX.value, node.y.value + size/2 + offSetY.value),
+                end = Offset(parent.x.value + size/2 + offSetX.value, parent.y.value + size/2 + offSetY.value),
                 strokeWidth = 3f
             )
         }
