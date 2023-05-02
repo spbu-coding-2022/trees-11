@@ -26,7 +26,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
 
     override fun saveTree(
         treeName: String,
-        tree: BinTree<String, Pair<String, Pair<Float, Float>>>,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
         viewCoordinates: Pair<Float, Float>
     ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
@@ -47,14 +47,14 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
     }
 
     private fun saveNode(
-        key: String,
+        key: Int,
         value: String,
         coordinate: Pair<Float, Float>,
         treeName: String,
         addNodeStatement: PreparedStatement
     ) {
         try {
-            addNodeStatement.setString(1, key)
+            addNodeStatement.setInt(1, key)
             addNodeStatement.setString(2, value)
             addNodeStatement.setFloat(3, coordinate.first)
             addNodeStatement.setFloat(4, coordinate.second)
@@ -85,7 +85,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
         try {
             executeQuery(
                 "CREATE TABLE if not exists ${treeName}Nodes (nodeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-                        "key varchar($maxStringLen), " +
+                        "key INTEGER, " +
                         "value varchar($maxStringLen), " +
                         "x FLOAT, " +
                         "y FLOAT);"
@@ -134,7 +134,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
 
     }
 
-    override fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
+    override fun readTree(treeName: String): Pair<BinTree<Int, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         val nodes = "${treeName}Nodes"
@@ -147,7 +147,7 @@ class SQLite(dbPath: String, val maxStringLen: UInt) : DataBase {
             val nodesSet = getAllNodesStatement.executeQuery()
             while (nodesSet.next()) {
                 tree.insert(
-                    nodesSet.getString("key"),
+                    nodesSet.getInt("key"),
                     Pair(
                         nodesSet.getString("value"),
                         Pair(nodesSet.getFloat("x"), nodesSet.getFloat("y"))

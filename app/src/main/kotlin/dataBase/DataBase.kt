@@ -10,7 +10,8 @@ interface DataBase {
             is AVLTree -> true
             else -> false
         }
-    fun typeToTree(type: String): BinTree<String, Pair<String, Pair<Float, Float>>> = when (type) {
+
+    fun typeToTree(type: String): BinTree<Int, Pair<String, Pair<Float, Float>>> = when (type) {
         BSTree::class.simpleName -> BSTree()
         RBTree::class.simpleName -> RBTree()
         AVLTree::class.simpleName -> AVLTree()
@@ -28,10 +29,10 @@ interface DataBase {
 
     fun saveTree(
         treeName: String,
-        tree: BinTree<String, Pair<String, Pair<Float, Float>>>,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
         viewCoordinates: Pair<Float, Float>
     )
-    fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>>
+    fun readTree(treeName: String): Pair<BinTree<Int, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>>
     fun removeTree(treeName: String)
     fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>>
     fun clean()

@@ -37,6 +37,16 @@ object Controller {
         SQLite
     }
 
+    fun validKey(key: String) = run {
+        try {
+            key.toInt()
+            true
+        }
+        catch (ex: Exception) {
+            false
+        }
+    }
+
     fun validateName(name: String) {
         for (i in name)
             if (i !in 'a'..'z' && i !in 'A'..'Z' && i !in '0'..'9')
@@ -48,10 +58,15 @@ object Controller {
         ) throw IllegalArgumentException("The name must be less than ${System.getProperty("max_string_len")} and greater than 0")
     }
 
-    fun getTree(treeType: TreeType) = when (treeType) {
-        TreeType.BSTree -> BSTree<String, Pair<String, Pair<Float, Float>>>()
-        TreeType.AVLTree -> AVLTree<String, Pair<String, Pair<Float, Float>>>()
-        TreeType.RBTree -> RBTree<String, Pair<String, Pair<Float, Float>>>()
+    fun getTree(treeType: TreeType, keysType: KeysType) = when(keysType) {
+        KeysType.Int -> Controller.getTree<Int>(treeType)
+        else -> throw IllegalArgumentException("Only Int support now")
+    }
+
+    private fun <Key: Comparable<Key>> getTree(treeType: TreeType) = when (treeType) {
+        TreeType.BSTree -> BSTree<Key, Pair<String, Pair<Float, Float>>>()
+        TreeType.AVLTree -> AVLTree<Key, Pair<String, Pair<Float, Float>>>()
+        TreeType.RBTree -> RBTree<Key, Pair<String, Pair<Float, Float>>>()
     }
 
     fun getDatabase(databaseType: DatabaseType) = when (databaseType) {
@@ -65,7 +80,7 @@ object Controller {
         DatabaseType.SQLite -> SQLite(System.getProperty("sqlite_path"), System.getProperty("max_string_len").toUInt())
     }
 
-    class Database(private val databaseType: DatabaseType) {
+    class Database(databaseType: DatabaseType) {
         private val database = getDatabase(databaseType)
 
         fun getAllTrees() = database.getAllTrees()
@@ -83,8 +98,10 @@ object Controller {
     )
 
     class DrawTree {
-        private var tree: BinTree<String, Pair<String, Pair<Float, Float>>>
+        private var tree: BinTree<Int, Pair<String, Pair<Float, Float>>>
         private var treeName: String
+        private var keysType: KeysType
+
         var viewCoordinates = Pair(0F, 0F)
 
         var startCoordinate = Pair(0F, 0F) //coordinates of the root node
@@ -98,19 +115,21 @@ object Controller {
             val treeData = getDatabase(databaseType).readTree(treeName)
             tree = treeData.first
             viewCoordinates = treeData.second
+            keysType = KeysType.String
         }
 
-        constructor(treeName: String, treeType: TreeType) {
+        constructor(treeName: String, treeType: TreeType, keysType: KeysType) {
             this.treeName = treeName
-            tree = getTree(treeType)
+            this.keysType = keysType
+            tree = getTree(treeType, keysType)
         }
 
         fun getAllDrawNodes(): MutableList<DrawNode> {
             val listOfDrawNodes = mutableListOf<DrawNode>()
-            val mapOfKeysNodes = mutableMapOf<String?, MutableList<DrawNode>>()
+            val mapOfKeysNodes = mutableMapOf<Int?, MutableList<DrawNode>>()
             for (i in tree.getNodesDataWithParentKeys().reversed()) {
                 val node = DrawNode(
-                    i.first,
+                    i.first.toString(),
                     i.second.first,
                     mutableStateOf(i.second.second.first),
                     mutableStateOf(i.second.second.second),
@@ -152,25 +171,25 @@ object Controller {
         }
 
         fun drawInsert(key: String, value: String) {
-            tree.insert(key, Pair(value, Pair(0F, 0F)))
+            tree.insert(key.toInt(), Pair(value, Pair(0F, 0F)))
 
             rewriteAllCoordinates()
         }
 
         fun drawRemove(key: String) {
-            tree.remove(key)
+            tree.remove(key.toInt())
 
             rewriteAllCoordinates()
         }
 
-        fun drawFind(key: String) = tree.get(key)?.first
+        fun drawFind(key: String) = tree.get(key.toInt())?.first
 
         fun updateCoordinate(node: DrawNode) {
-            tree.insert(node.key, Pair(node.value, Pair(node.x.value, node.y.value)))
+            tree.insert(node.key.toInt(), Pair(node.value, Pair(node.x.value, node.y.value)))
         }
 
         fun saveToDB(databaseType: DatabaseType) {
-            getDatabase(databaseType).saveTree(treeName, tree, viewCoordinates)
+            getDatabase(databaseType).saveTree(treeName, tree, viewCoordinates,)
         }
 
         fun clean() {

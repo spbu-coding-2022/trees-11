@@ -37,7 +37,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
 
     override fun saveTree(
         treeName: String,
-        tree: BinTree<String, Pair<String, Pair<Float, Float>>>,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
         viewCoordinates: Pair<Float, Float>
     ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
@@ -46,16 +46,16 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         removeTree(treeName)
         executeQuery("CREATE (:Tree {name: '$treeName', type: '${tree::class.simpleName}', " +
                 "viewX: ${viewCoordinates.first}, viewY: ${viewCoordinates.second}})")
-        var prevKey: String? = null
+        var prevKey: Int? = null
         tree.getKeyValueList()
             .forEach { saveNode(it.first, it.second.first, it.second.second, prevKey, treeName); prevKey = it.first }
     }
 
     private fun saveNode(
-        key: String,
+        key: Int,
         value: String,
         coordinate: Pair<Float, Float>,
-        prevKey: String?,
+        prevKey: Int?,
         treeName: String
     ) {
         session.executeWrite { tx ->
@@ -72,7 +72,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         }
     }
 
-    override fun readTree(treeName: String): Pair<BinTree<String, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
+    override fun readTree(treeName: String): Pair<BinTree<Int, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         var type = ""
@@ -99,7 +99,7 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
             result.stream().forEach {
                 try {
                     tree.insert(
-                        it["key"].asString(),
+                        it["key"].asInt(),
                         Pair(
                             it["value"].asString(),
                             Pair(it["x"].asFloat(), it["y"].asFloat())
