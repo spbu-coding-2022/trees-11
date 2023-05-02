@@ -122,11 +122,22 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
 
     override fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>> {
         val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
-        session.executeRead { tx ->
-            val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type, tree.viewX AS x, tree.viewY AS y")
-            result.stream().forEach {
-                list.add(Triple(it["name"].asString(), it["type"].asString(), Pair(it["x"].asFloat(), it["y"].asFloat())))
+        try {
+            session.executeRead { tx ->
+                val result =
+                    tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type, tree.viewX AS x, tree.viewY AS y")
+                result.stream().forEach {
+                    list.add(
+                        Triple(
+                            it["name"].asString(),
+                            it["type"].asString(),
+                            Pair(it["x"].asFloat(), it["y"].asFloat())
+                        )
+                    )
+                }
             }
+        } catch (ex: Exception) {
+            throw IOException("Cannot get trees from Neo4j\nCheck that the database is active and all data is entered correctly\n$ex")
         }
         return list
     }

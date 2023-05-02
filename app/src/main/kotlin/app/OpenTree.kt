@@ -1,20 +1,24 @@
 package app
 
-import UIT.md_theme_light_primary
+import UIT.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 
 
 @Composable
 fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
-    var files = listOf(Pair("", ""))
-    var dataBaseType: Controller.DatabaseType = Controller.DatabaseType.Json
+    var files = remember { mutableStateOf(mutableStateListOf<Triple<String, String, Pair<Float, Float>>>()) }
+    var dataBaseType = Controller.DatabaseType.Json
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp),
@@ -38,7 +42,8 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        files = Controller.Database(Controller.DatabaseType.Json).getAllTrees()
+                        files.value =
+                            Controller.Database(Controller.DatabaseType.Json).getAllTrees().toMutableStateList()
                         dataBaseType = Controller.DatabaseType.Json
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -55,7 +60,8 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        files = Controller.Database(Controller.DatabaseType.SQLite).getAllTrees()
+                        files.value =
+                            Controller.Database(Controller.DatabaseType.SQLite).getAllTrees().toMutableStateList()
                         dataBaseType = Controller.DatabaseType.SQLite
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -72,7 +78,8 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
 
                 Button(
                     onClick = {
-                        files = Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees()
+                        files.value =
+                            Controller.Database(Controller.DatabaseType.Neo4j).getAllTrees().toMutableStateList()
                         dataBaseType = Controller.DatabaseType.Neo4j
                     },
                     shape = MaterialTheme.shapes.extraLarge,
@@ -86,36 +93,74 @@ fun OpenTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(15.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                LazyColumn {
-                    items(files) { file ->
-                        Row {
-                            Text(
-                                text = "name: \"${file.first}\" type: ${file.second}"
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (files.value.isNotEmpty()) {
+
+                Button(
+                    onClick = {
+                        Controller.Database(dataBaseType).clean()
+                        files.value = mutableStateListOf()
+                    },
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier = Modifier.height(50.dp).fillMaxWidth(0.95f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = md_theme_light_negative_primary
+                    )
+                ) {
+                    Text("delete all trees saved in $dataBaseType")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            LazyColumn {
+                items(files.value) { file ->
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Box(
+                        modifier = Modifier.fillMaxWidth(0.95f)
+                            .zIndex(0f)
+                            .border(4.dp, md_theme_light_border, RoundedCornerShape(20.dp))
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxSize()
+                                .zIndex(1f),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Button(
                                 onClick = {
                                     onClick(Controller.DrawTree(file.first, dataBaseType))
                                 },
                                 shape = MaterialTheme.shapes.extraLarge,
-                                modifier = Modifier.weight(0.30f).height(57.dp),
+                                modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = md_theme_light_primary
                                 )
                             ) {
                                 Text("Open")
                             }
-                            Spacer(modifier = Modifier.width(15.dp))
+
+                            Text(
+                                modifier = Modifier.weight(6f),
+                                textAlign = TextAlign.Center,
+                                text = "name: \"${file.first}\""
+                            )
+                            Text(
+                                modifier = Modifier.weight(3f),
+                                textAlign = TextAlign.Center,
+                                text = file.second
+                            )
+
                             Button(
                                 onClick = {
                                     Controller.Database(dataBaseType).removeTree(file.first)
+                                    files.value.remove(file)
                                 },
                                 shape = MaterialTheme.shapes.extraLarge,
-                                modifier = Modifier.weight(0.30f).height(57.dp),
+                                modifier = Modifier.weight(3f).width(30.dp).fillMaxHeight(),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = md_theme_light_primary
+                                    containerColor = md_theme_light_negative_primary
                                 )
                             ) {
                                 Text("Delete")
