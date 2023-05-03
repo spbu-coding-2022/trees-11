@@ -156,7 +156,7 @@ fun CreatNewTree(onBack: () -> Unit, onClick: (Controller.DrawTree) -> Unit) {
             Button(
                 enabled = error.value == null && name.isNotEmpty(),
                 onClick = {
-                    val tree = Controller.DrawTree(name, Controller.TreeType.RBTree, keysType.value)
+                    val tree = Controller.DrawTree(name, treeType.value, keysType.value)
                     name = ""
                     onClick(tree)
                 },

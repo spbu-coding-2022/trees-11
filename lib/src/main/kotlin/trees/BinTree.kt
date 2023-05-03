@@ -256,6 +256,8 @@ abstract class BinTree<Key : Comparable<Key>, Value> : Tree<Key, Value> {
                 listOfLevel = mutableListOf()
             }
         }
+        if (listOfLevel.isNotEmpty())
+            listOfAllNodes.add(listOfLevel)
 
         var curLevel = 0
         val height = listOfAllNodes.size
