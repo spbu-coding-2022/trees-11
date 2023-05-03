@@ -1,4 +1,4 @@
-<img src=app/src/main/kotlin/app/resources/icon.png alt="logo" width="150" align="right">
+<img src=app/src/main/resources/icon.png alt="logo" width="150" align="right">
 
 # Tree Structure
 
