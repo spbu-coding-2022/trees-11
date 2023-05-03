@@ -41,8 +41,7 @@ object Controller {
         try {
             key.toInt()
             true
-        }
-        catch (ex: Exception) {
+        } catch (ex: Exception) {
             false
         }
     }
@@ -145,13 +144,13 @@ object Controller {
             return listOfDrawNodes
         }
 
-        fun reInitAllDrawNodes(){
+        fun reInitAllDrawNodes() {
             content.value = getAllDrawNodes()
         }
 
         private fun rewriteAllCoordinates() {
-            fun offsetOnLevel(level: Int, height: Int) =
-                ((height - 2) * xMinInterval * (0.5.pow(level) - 1) * (-2)).toFloat() //the sum of the terms of the geometric progression
+            fun offsetOnLevel(level: Int, height: Int) = if (height == 2 && level != 0) xMinInterval / 2 else
+                ((0.5.pow(level) - 1) * (height - 2) * xMinInterval * (-2)).toFloat() //the sum of the terms of the geometric progression
 
             var lastLevel = -1
             var curX = startCoordinate.first
@@ -160,7 +159,7 @@ object Controller {
             tree.rewriteAllValue(true) { value, level, height ->
                 if (level != lastLevel) {
                     curY -= yInterval
-                    curX = -offsetOnLevel(level, height)
+                    curX = startCoordinate.first - offsetOnLevel(level, height)
                     levelInterval = xMinInterval * 2F.pow(height - level - 1)
                 } else curX += levelInterval
                 lastLevel = level
@@ -189,7 +188,7 @@ object Controller {
         }
 
         fun saveToDB(databaseType: DatabaseType) {
-            getDatabase(databaseType).saveTree(treeName, tree, viewCoordinates,)
+            getDatabase(databaseType).saveTree(treeName, tree, viewCoordinates)
         }
 
         fun clean() {
