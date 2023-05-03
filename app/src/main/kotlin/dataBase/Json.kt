@@ -14,48 +14,51 @@ class Json(private val saveDirPath: String) : DataBase {
 
     init {
         if (saveDirPath.last() == '\\' || saveDirPath.last() == '/') throw IllegalArgumentException("Please, don't use '/' or '\\' in the end of dir path")
+        File(saveDirPath).mkdirs()
     }
 
     private fun getFile(treeName: String) = try {
         File("${saveDirPath}/${treeName}.json")
     } catch (ex: Exception) {
-        throw IOException("cannot get file with name: ${saveDirPath}/${treeName}.json")
+        throw IOException("cannot get file with name: ${saveDirPath}/${treeName}.json\n$ex")
     }
 
     override fun saveTree(
-        treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>
+        treeName: String,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
+        viewCoordinates: Pair<Float, Float>
     ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
         removeTree(treeName)
 
+
         val jsonFile = getFile(treeName)
-        File(saveDirPath).mkdirs()
         jsonFile.createNewFile()
 
         jsonFile.appendText(
             mapper.writeValueAsString(
                 Pair(
-                    Pair(treeName, tree::class.simpleName),
+                    Triple(treeName, tree::class.simpleName, viewCoordinates),
                     tree.getKeyValueList()
                 )
             )
         )
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+    override fun readTree(treeName: String): Pair<BinTree<Int, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         val jsonFile = getFile(treeName)
 
         val readTree =
-            mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+            mapper.readValue<Pair<Triple<String, String, Pair<Float, Float>>, Array<Pair<Int, Pair<String, Pair<Float, Float>>>>>>(
                 jsonFile
             )
         val tree = typeToTree(readTree.first.second)
         tree.insert(*readTree.second)
-        return tree
+        return Pair(tree, readTree.first.third)
     }
 
     override fun removeTree(treeName: String) {
@@ -71,11 +74,11 @@ class Json(private val saveDirPath: String) : DataBase {
         }
     }
 
-    override fun getAllTree(): List<Pair<String, String>> {
-        val list = mutableListOf<Pair<String, String>>()
+    override fun getAllTrees(): MutableList<Triple<String, String, Pair<Float, Float>>> {
+        val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
         forAllJsonFile {
             list.add(
-                mapper.readValue<Pair<Pair<String, String>, Array<Pair<String, Pair<String, Pair<Double, Double>>>>>>(
+                mapper.readValue<Pair<Triple<String, String, Pair<Float, Float>>, Array<Pair<String, Pair<String, Pair<Float, Float>>>>>>(
                     it
                 ).first
             )

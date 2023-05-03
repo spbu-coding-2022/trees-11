@@ -16,42 +16,69 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
     init {
         try {
             driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password))
+            driver.verifyConnectivity()
             session = driver.session()
-        } catch (e: IllegalArgumentException) {
-            throw IOException("can't start session, try to change uri, user name or password")
+        } catch (ex: Exception) {
+            throw IOException("can't start session, try to change uri, user name or password\n$ex")
         }
     }
 
     private fun executeQuery(query: String) {
         try {
             session.run(query)
-        }
-        catch (ex: ServiceUnavailableException) {
-            throw IOException("Cannot connect to Neo4j database\nCheck that Neo4j is running and that all the data in the app/src/main/resources/Neo4j.properties file is correct")
+        } catch (ex: ServiceUnavailableException) {
+            throw IOException(
+                "Cannot connect to Neo4j database\n" +
+                        "Check that Neo4j is running and that all the data in the app/src/main/resources/Neo4j.properties file is correct\n" +
+                        "$ex"
+            )
         }
     }
 
-    override fun saveTree(treeName: String, tree: BinTree<String, Pair<String, Pair<Double, Double>>>) {
+    override fun saveTree(
+        treeName: String,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
+        viewCoordinates: Pair<Float, Float>
+    ) {
         if (!isSupportTreeType(tree)) throw IllegalArgumentException("Unsupported tree type")
         validateName(treeName)
 
         removeTree(treeName)
-        executeQuery("CREATE (:Tree {name: '$treeName', type: '${tree::class.simpleName}'})")
-        var prevKey: String? = null
+        addTreeNode(treeName, tree, viewCoordinates)
+        var prevKey: Int? = null
         tree.getKeyValueList()
             .forEach { saveNode(it.first, it.second.first, it.second.second, prevKey, treeName); prevKey = it.first }
     }
 
+    private fun addTreeNode(
+        treeName: String,
+        tree: BinTree<Int, Pair<String, Pair<Float, Float>>>,
+        coordinates: Pair<Float, Float>
+    ) {
+        session.executeWrite { tx ->
+            tx.run(
+                "CREATE (:Tree {name: \$name, type: \$type, " +
+                        "viewX: \$x, viewY: \$y})",
+                mutableMapOf(
+                    "name" to treeName,
+                    "type" to tree::class.simpleName,
+                    "x" to coordinates.first,
+                    "y" to coordinates.second
+                ) as Map<String, Any>
+            )
+        }
+    }
+
     private fun saveNode(
-        key: String,
+        key: Int,
         value: String,
-        coordinate: Pair<Double, Double>,
-        prevKey: String?,
+        coordinate: Pair<Float, Float>,
+        prevKey: Int?,
         treeName: String
     ) {
         session.executeWrite { tx ->
             tx.run(
-                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "Tree WHERE prevNode.name = '$treeName'" else "${treeName}Node WHERE prevNode.key = '$prevKey'"})  " +
+                "OPTIONAL MATCH (prevNode:${if (prevKey == null) "Tree WHERE prevNode.name = '$treeName'" else "${treeName}Node WHERE prevNode.key = $prevKey"})  " +
                         "CREATE (prevNode)-[:next]->(b:${treeName}Node {key:\$key, value:\$value, x:\$x, y:\$y})",
                 mutableMapOf(
                     "key" to key,
@@ -63,12 +90,21 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         }
     }
 
-    override fun readTree(treeName: String): BinTree<String, Pair<String, Pair<Double, Double>>> {
+    override fun readTree(treeName: String): Pair<BinTree<Int, Pair<String, Pair<Float, Float>>>, Pair<Float, Float>> {
         validateName(treeName)
 
         var type = ""
+        var viewCoordinates = Pair(0F, 0F)
         session.executeRead { tx ->
-            type = tx.run("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName') RETURN tree.type AS type").single()["type"].asString()
+            val result = tx.run("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName') RETURN tree.type AS type, tree.viewX AS x, tree.viewY AS y").single()
+            try {
+                type = result["type"].asString()
+                viewCoordinates = Pair(result["x"].asFloat(), result["y"].asFloat())
+            } catch (ex: Uncoercible) {
+                throw IOException("Corrupted data in the database.\nPossible solution: Clear the data.\n$ex")
+            } catch (ex: Exception) {
+                throw IOException("Cannot get or recognise data\n$ex")
+            }
         }
 
         val tree = typeToTree(type)
@@ -81,18 +117,20 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
             result.stream().forEach {
                 try {
                     tree.insert(
-                        it["key"].asString(),
+                        it["key"].asInt(),
                         Pair(
                             it["value"].asString(),
-                            Pair(it["x"].asDouble(), it["y"].asDouble())
+                            Pair(it["x"].asFloat(), it["y"].asFloat())
                         )
                     )
-                } catch (e: Uncoercible) {
-                    throw IOException("Corrupted data in the database.\n Possible solution: Clear the data.")
+                } catch (ex: Uncoercible) {
+                    throw IOException("Corrupted data in the database.\nPossible solution: Clear the data.\n$ex")
+                } catch (ex: Exception) {
+                    throw IOException("Cannot get or recognise data\n$ex")
                 }
             }
         }
-        return tree
+        return Pair(tree, viewCoordinates)
     }
 
     override fun removeTree(treeName: String) {
@@ -101,13 +139,24 @@ class Neo4j(uri: String, user: String, password: String) : DataBase {
         executeQuery("OPTIONAL MATCH (tree: Tree WHERE tree.name = '$treeName')-[:next*]->(node) DETACH DELETE node, tree")
     }
 
-    override fun getAllTree(): List<Pair<String, String>> {
-        val list = mutableListOf<Pair<String, String>>()
-        session.executeRead { tx ->
-            val result = tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type")
-            result.stream().forEach {
-                list.add(Pair(it["name"].asString(), it["type"].asString()))
+    override fun getAllTrees(): List<Triple<String, String, Pair<Float, Float>>> {
+        val list = mutableListOf<Triple<String, String, Pair<Float, Float>>>()
+        try {
+            session.executeRead { tx ->
+                val result =
+                    tx.run("OPTIONAL MATCH (tree: Tree) RETURN tree.name AS name, tree.type AS type, tree.viewX AS x, tree.viewY AS y")
+                result.stream().forEach {
+                    list.add(
+                        Triple(
+                            it["name"].asString(),
+                            it["type"].asString(),
+                            Pair(it["x"].asFloat(), it["y"].asFloat())
+                        )
+                    )
+                }
             }
+        } catch (ex: Exception) {
+            throw IOException("Cannot get trees from Neo4j\nCheck that the database is active and all data is entered correctly\n$ex")
         }
         return list
     }
