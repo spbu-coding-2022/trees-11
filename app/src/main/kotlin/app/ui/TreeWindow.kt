@@ -116,6 +116,18 @@ fun Tree(onBack: () -> Unit, tree: Controller.DrawTree) {
             ) {
                 Text("go to tree Root!")
             }
+            Button(
+                onClick = {
+                    tree.yInterval = -tree.yInterval
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.width(400.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Text("secret", color = Color.White)
+            }
         }
         ViewTree().drawTree(tree, offSetX, offSetY)
     }
