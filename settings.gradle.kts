@@ -1,2 +1,6 @@
-rootProject.name = "trees"
+pluginManagement {
+    includeBuild("build-logic")
+}
 
+rootProject.name = "trees"
+include("lib", "app")
